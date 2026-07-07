@@ -12,8 +12,11 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
       <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-[480px] mx-4">
-        <div className="px-6 pt-6 pb-4 border-b border-white/10">
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/10">
           <h2 className="text-lg font-semibold text-white">{title}</h2>
+          <button onClick={onClose} className="text-white/40 hover:text-red-400 transition-colors">
+            <X size={18} />
+          </button>
         </div>
         {children}
       </div>
