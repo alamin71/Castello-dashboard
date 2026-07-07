@@ -81,6 +81,9 @@
   html {
     @apply font-sans;
   }
+  button, a, select, label, input[type="file"], input[type="checkbox"], input[type="radio"], [role="button"] {
+    cursor: pointer;
+  }
   select {
     color-scheme: dark;
     accent-color: #ffffff;
