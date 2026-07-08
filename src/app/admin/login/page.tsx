@@ -3,40 +3,29 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Eye, EyeOff, CheckCircle } from "lucide-react";
-
-const ADMIN_EMAIL = "superadmin@castello.com";
-const ADMIN_PASSWORD = "Admin@1234";
+import { useLogin } from "@/hooks/mutations/useLogin";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
-  const handleSignIn = async () => {
-    setError("");
-    if (!email || !password) {
-      setError("Please enter your email and password.");
-      return;
-    }
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 600));
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      const maxAge = rememberMe ? 60 * 60 * 24 * 7 : 60 * 60 * 8;
-      document.cookie = `castello_auth=1; path=/; max-age=${maxAge}`;
-      setShowToast(true);
-      await new Promise((r) => setTimeout(r, 1500));
-      router.push("/dashboard");
-    } else {
-      setError("Invalid email or password. Please try again.");
-      setLoading(false);
-    }
+  const { mutate: login, isPending, error } = useLogin();
+
+  const errorMessage = error
+    ? ((error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+      "Invalid email or password.")
+    : "";
+
+  const handleSignIn = () => {
+    if (!email || !password) return;
+    login(
+      { email, password },
+      { onSuccess: () => setShowToast(true) }
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -47,11 +36,12 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center p-4">
       {/* Success toast */}
       {showToast && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-emerald-500 text-white text-sm font-medium px-5 py-3 rounded-2xl shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-emerald-500 text-white text-sm font-medium px-5 py-3 rounded-2xl shadow-2xl">
           <CheckCircle size={18} />
           Login successful!
         </div>
       )}
+
       <div className="bg-[#1a1a1a] rounded-2xl p-8 w-full max-w-md">
         {/* Logo */}
         <div className="flex justify-center mb-6">
@@ -71,10 +61,10 @@ export default function LoginPage() {
             <input
               type="email"
               value={email}
-              onChange={(e) => { setEmail(e.target.value); setError(""); }}
+              onChange={(e) => setEmail(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Enter email address"
-              className={`w-full  border rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none transition-colors ${
+              className={`w-full bg-[#0f0f0f] border rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none transition-colors ${
                 error ? "border-red-500/60 focus:border-red-500" : "border-white/10 focus:border-white/30"
               }`}
             />
@@ -86,10 +76,10 @@ export default function LoginPage() {
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => { setPassword(e.target.value); setError(""); }}
+                onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Enter your password"
-                className={`w-full border rounded-xl px-4 py-3 pr-11 text-sm text-white placeholder-white/30 outline-none transition-colors ${
+                className={`w-full bg-[#0f0f0f] border rounded-xl px-4 py-3 pr-11 text-sm text-white placeholder-white/30 outline-none transition-colors ${
                   error ? "border-red-500/60 focus:border-red-500" : "border-white/10 focus:border-white/30"
                 }`}
               />
@@ -104,8 +94,8 @@ export default function LoginPage() {
           </div>
 
           {/* Error message */}
-          {error && (
-            <p className="text-sm text-red-400">{error}</p>
+          {errorMessage && (
+            <p className="text-sm text-red-400">{errorMessage}</p>
           )}
 
           <div className="flex items-center justify-between">
@@ -128,10 +118,10 @@ export default function LoginPage() {
 
           <button
             onClick={handleSignIn}
-            disabled={loading}
+            disabled={isPending}
             className="w-full py-3.5 rounded-xl bg-white text-[#141414] text-sm font-semibold hover:bg-white/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? "Signing in…" : "Sign In"}
+            {isPending ? "Signing in…" : "Sign In"}
           </button>
         </div>
       </div>
