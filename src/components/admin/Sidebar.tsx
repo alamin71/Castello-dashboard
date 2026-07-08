@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   LayoutDashboard,
@@ -53,6 +53,12 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    document.cookie = "castello_auth=; path=/; max-age=0";
+    router.push("/admin/login");
+  };
 
   const isMenuActive = navItems
     .find((i) => i.label === "Menu")
@@ -158,7 +164,7 @@ export default function Sidebar() {
 
       {/* Logout */}
       <div className="px-3 py-4 border-t border-white/6">
-        <button className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors">
+        <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors">
           <LogOut size={16} />
           Logout
         </button>

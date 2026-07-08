@@ -3,11 +3,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Settings, LogOut } from "lucide-react";
 
 export default function TopBar() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
+  const handleLogout = () => {
+    document.cookie = "castello_auth=; path=/; max-age=0";
+    router.push("/admin/login");
+  };
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -45,7 +52,7 @@ export default function TopBar() {
               <Settings size={15} className="text-white/50" />
               Account Settings
             </Link>
-            <button className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-[#ff4d00] hover:bg-white/5 transition-colors">
+            <button onClick={handleLogout} className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-[#ff4d00] hover:bg-white/5 transition-colors">
               <LogOut size={15} />
               Logout
             </button>
