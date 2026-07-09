@@ -10,12 +10,15 @@ import { ProfileAvatar } from "@/components/admin/ProfileAvatar";
 export default function TopBar() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   const admin = useAuthStore((s) => s.admin);
   const clearAuth = useAuthStore((s) => s.clearAuth);
 
   const handleLogout = () => {
+    setLoggingOut(true);
+    setOpen(false);
     clearAuth();
     document.cookie = "castello_auth=; path=/; max-age=0";
     router.push("/admin/login");
@@ -34,12 +37,14 @@ export default function TopBar() {
   return (
     <header className="flex items-center justify-end px-6 py-4 border-b border-white/6 bg-[#0f0f0f]">
       <div className="relative" ref={ref}>
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="w-9 h-9 rounded-full overflow-hidden ring-1 ring-white/10 hover:ring-white/30 transition-all cursor-pointer"
-        >
-          <ProfileAvatar image={admin?.image ?? ""} name={admin?.name ?? ""} size="sm" />
-        </button>
+        {!loggingOut && (
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="w-9 h-9 rounded-full overflow-hidden ring-1 ring-white/10 hover:ring-white/30 transition-all cursor-pointer"
+          >
+            <ProfileAvatar image={admin?.image ?? ""} name={admin?.name ?? ""} size="sm" />
+          </button>
+        )}
 
         {open && (
           <div className="absolute right-0 top-11 w-48 bg-[#232323] border border-white/10 rounded-xl shadow-2xl py-1 z-50">
