@@ -12,6 +12,8 @@ import {
   ResetPasswordPayload,
   ChangePasswordPayload,
   UpdateProfilePayload,
+  ChangeEmailRequestPayload,
+  ChangeEmailVerifyOtpPayload,
   AdminUser,
 } from "@/types/auth.types";
 import { ApiResponse } from "@/types/api.types";
@@ -92,5 +94,15 @@ export const authService = {
   // DELETE /admin/profile/photo
   removeProfilePhoto: async (): Promise<void> => {
     await apiClient.delete(API.auth.removeProfilePhoto);
+  },
+
+  // POST /admin/change-email/request — sends OTP to new email
+  requestEmailChange: async (payload: ChangeEmailRequestPayload): Promise<void> => {
+    await apiClient.post(API.auth.changeEmailRequest, payload);
+  },
+
+  // POST /admin/change-email/verify-otp — verifies OTP, updates email
+  verifyEmailChangeOtp: async (payload: ChangeEmailVerifyOtpPayload): Promise<void> => {
+    await apiClient.post(API.auth.changeEmailVerifyOtp, payload);
   },
 };

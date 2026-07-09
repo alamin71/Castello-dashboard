@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { User } from "lucide-react";
 
 interface Props {
@@ -9,13 +10,23 @@ interface Props {
 }
 
 export function ProfileAvatar({ image, name, size }: Props) {
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => { setImgError(false); }, [image]);
   const initials = name.trim().split(/\s+/).map((n) => n[0]).join("").slice(0, 2).toUpperCase();
   const iconSize = size === "lg" ? 28 : 16;
   const textClass = size === "lg" ? "text-xl" : "text-sm";
 
-  if (image) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={image} alt={name} className="object-cover w-full h-full" />;
+  if (image && !imgError) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={image}
+        alt={name}
+        className="object-cover w-full h-full"
+        onError={() => setImgError(true)}
+      />
+    );
   }
 
   return (

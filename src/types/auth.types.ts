@@ -70,3 +70,13 @@ export interface UpdateProfilePayload {
   name?: string;
   image?: File;
 }
+
+// POST /admin/change-email/request — body: { newEmail }, Bearer auto-attached
+export interface ChangeEmailRequestPayload {
+  newEmail: string;
+}
+
+// POST /admin/change-email/verify-otp — body: { otp }, Bearer auto-attached
+export interface ChangeEmailVerifyOtpPayload {
+  otp: string;
+}

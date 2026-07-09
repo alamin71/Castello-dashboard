@@ -4,11 +4,13 @@ import { useState, useRef } from "react";
 import { Pencil, Eye, EyeOff, CheckCircle, X } from "lucide-react";
 import { useChangePassword } from "@/hooks/mutations/useChangePassword";
 import { useUpdateProfile } from "@/hooks/mutations/useUpdateProfile";
+import { useRequestEmailChange } from "@/hooks/mutations/useRequestEmailChange";
+import { useVerifyEmailChangeOtp } from "@/hooks/mutations/useVerifyEmailChangeOtp";
 import { useAuthStore } from "@/store/auth.store";
 import ProfileSettings, { SuccessToast } from "./ProfileSettings";
 
 type SettingsTab = "basic" | "password";
-type EmailStep = "enter" | "verify" | "otp" | "success";
+type EmailStep = "enter" | "otp" | "success";
 
 // ─── Shared modal shell ────────────────────────────────────────────────────────
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
@@ -82,11 +84,17 @@ function ChangeNameModal({ currentName, onClose, onSave }: { currentName: string
 }
 
 // ─── Change Email multi-step modal ────────────────────────────────────────────
-function ChangeEmailModal({ onClose }: { onClose: () => void }) {
+function ChangeEmailModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
   const [step, setStep] = useState<EmailStep>("enter");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const updateAdmin = useAuthStore((s) => s.updateAdmin);
+  const admin = useAuthStore((s) => s.admin);
+
+  const { mutate: requestChange, isPending: isRequesting, error: requestError } = useRequestEmailChange();
+  const { mutate: verifyOtp, isPending: isVerifying, error: verifyError } = useVerifyEmailChangeOtp();
 
   const handleOtpChange = (idx: number, val: string) => {
     if (!/^\d?$/.test(val)) return;
@@ -100,19 +108,44 @@ function ChangeEmailModal({ onClose }: { onClose: () => void }) {
     if (e.key === "Backspace" && !otp[idx] && idx > 0) otpRefs.current[idx - 1]?.focus();
   };
 
+  const handleRequestOtp = () => {
+    if (!email.trim()) return;
+    requestChange({ newEmail: email.trim() }, {
+      onSuccess: () => setStep("otp"),
+    });
+  };
+
+  const handleVerifyOtp = () => {
+    const otpStr = otp.join("");
+    if (otpStr.length < 6) return;
+    verifyOtp({ otp: otpStr }, {
+      onSuccess: () => {
+        if (admin) updateAdmin({ ...admin, email: email.trim() });
+        setStep("success");
+      },
+    });
+  };
+
+  const requestErrMsg = requestError
+    ? ((requestError as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Failed to send OTP.")
+    : "";
+  const verifyErrMsg = verifyError
+    ? ((verifyError as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Invalid OTP.")
+    : "";
+
   if (step === "success") {
     return (
       <Modal title="Change Email Address" onClose={onClose}>
         <div className="px-6 py-10 flex flex-col items-center text-center">
-          <div className="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center mb-4">
+          <div className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center mb-4">
             <CheckCircle size={32} className="text-white" />
           </div>
-          <p className="text-base font-semibold text-white mb-1">Successfully Verified & Updated</p>
-          <p className="text-sm text-white/50">Your new email address is successfully verified<br />& updated</p>
+          <p className="text-base font-semibold text-white mb-1">Email Updated Successfully</p>
+          <p className="text-sm text-white/50">Your email address has been updated to<br /><span className="text-[#ff4d00]">{email}</span></p>
         </div>
         <div className="px-6 pb-6 border-t border-white/10 pt-4">
-          <button onClick={onClose} className="w-full py-3 rounded-full bg-[#ff4d00] text-white text-sm font-medium hover:bg-[#e84400] transition-colors">
-            Sign In
+          <button onClick={() => { onSuccess(); onClose(); }} className="w-full py-3 rounded-full bg-[#ff4d00] text-white text-sm font-medium hover:bg-[#e84400] transition-colors">
+            Done
           </button>
         </div>
       </Modal>
@@ -125,7 +158,7 @@ function ChangeEmailModal({ onClose }: { onClose: () => void }) {
         <div className="px-6 py-5 space-y-4">
           <div>
             <p className="text-base font-semibold text-white mb-0.5">OTP Verification</p>
-            <p className="text-sm text-white/50 mb-1">Enter the verification code we sent to your email</p>
+            <p className="text-sm text-white/50 mb-1">Enter the verification code sent to</p>
             <p className="text-sm text-[#ff4d00]">{email}</p>
           </div>
           <div className="flex gap-3 justify-center mt-2">
@@ -140,48 +173,21 @@ function ChangeEmailModal({ onClose }: { onClose: () => void }) {
                 onChange={(e) => handleOtpChange(idx, e.target.value)}
                 onKeyDown={(e) => handleOtpKeyDown(idx, e)}
                 className={`w-11 h-11 text-center text-base font-medium rounded-xl border outline-none transition-colors ${
-                  digit ? "bg-[#0f0f0f] border-white/30 text-white" : "bg-[#ff4d00]/10 border-[#ff4d00]/30 text-white"
+                  digit ? "border-white/30 text-white" : "bg-[#ff4d00]/10 border-[#ff4d00]/30 text-white"
                 } focus:border-white/50`}
               />
             ))}
           </div>
+          {verifyErrMsg && <p className="text-sm text-red-400 text-center">{verifyErrMsg}</p>}
           <p className="text-center text-sm text-white/40">
             Didn&apos;t get OTP?{" "}
-            <button className="text-[#ff4d00] font-medium hover:underline">Resend</button>
+            <button onClick={() => handleRequestOtp()} className="text-[#ff4d00] font-medium hover:underline">Resend</button>
           </p>
         </div>
         <div className="px-6 pb-6 border-t border-white/10 pt-4">
           <div className="flex gap-3">
             <ActionBtn variant="outline" onClick={onClose}>Cancel</ActionBtn>
-            <ActionBtn onClick={() => setStep("success")}>Verify OTP</ActionBtn>
-          </div>
-        </div>
-      </Modal>
-    );
-  }
-
-  if (step === "verify") {
-    return (
-      <Modal title="Change Email Address" onClose={onClose}>
-        <div className="px-6 py-5 space-y-4">
-          <div>
-            <p className="text-base font-semibold text-white mb-0.5">Verify Your Email</p>
-            <p className="text-sm text-white/50">Enter your email address to get an OTP code</p>
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-sm text-white">New Email Address</label>
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter new email address"
-              className="w-full bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30"
-            />
-          </div>
-        </div>
-        <div className="px-6 pb-6 border-t border-white/10 pt-4">
-          <div className="flex gap-3">
-            <ActionBtn variant="outline" onClick={onClose}>Cancel</ActionBtn>
-            <ActionBtn onClick={() => setStep("otp")}>Get OTP</ActionBtn>
+            <ActionBtn onClick={handleVerifyOtp}>{isVerifying ? "Verifying…" : "Verify OTP"}</ActionBtn>
           </div>
         </div>
       </Modal>
@@ -198,14 +204,15 @@ function ChangeEmailModal({ onClose }: { onClose: () => void }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter new email address"
-            className="w-full bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30"
+            className="w-full border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30"
           />
+          {requestErrMsg && <p className="text-sm text-red-400">{requestErrMsg}</p>}
         </div>
       </div>
       <div className="px-6 pb-6 border-t border-white/10 pt-4">
         <div className="flex gap-3">
           <ActionBtn variant="outline" onClick={onClose}>Cancel</ActionBtn>
-          <ActionBtn onClick={() => setStep("verify")}>Continue</ActionBtn>
+          <ActionBtn onClick={handleRequestOtp}>{isRequesting ? "Sending OTP…" : "Get OTP"}</ActionBtn>
         </div>
       </div>
     </Modal>
@@ -400,7 +407,10 @@ export default function SettingsPage() {
         />
       )}
       {showChangeEmail && (
-        <ChangeEmailModal onClose={() => setShowChangeEmail(false)} />
+        <ChangeEmailModal
+          onClose={() => setShowChangeEmail(false)}
+          onSuccess={() => triggerToast("Email updated successfully!")}
+        />
       )}
     </div>
   );
