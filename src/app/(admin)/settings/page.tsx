@@ -118,7 +118,7 @@ function ChangeEmailModal({ onClose, onSuccess }: { onClose: () => void; onSucce
   const handleVerifyOtp = () => {
     const otpStr = otp.join("");
     if (otpStr.length < 6) return;
-    verifyOtp({ otp: otpStr }, {
+    verifyOtp({ otp: Number(otpStr) }, {
       onSuccess: () => {
         if (admin) updateAdmin({ ...admin, email: email.trim() });
         setStep("success");

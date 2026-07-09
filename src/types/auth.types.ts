@@ -76,7 +76,7 @@ export interface ChangeEmailRequestPayload {
   newEmail: string;
 }
 
-// POST /admin/change-email/verify-otp — body: { otp }, Bearer auto-attached
+// POST /admin/change-email/verify-otp — body: { otp: number }, Bearer auto-attached
 export interface ChangeEmailVerifyOtpPayload {
-  otp: string;
+  otp: number;
 }
