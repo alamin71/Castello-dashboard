@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Image from "next/image";
-import { Pencil, Eye, EyeOff, Camera, Trash2, CheckCircle, X } from "lucide-react";
+import { Pencil, Eye, EyeOff, CheckCircle, X } from "lucide-react";
 import { useChangePassword } from "@/hooks/mutations/useChangePassword";
+import { useUpdateProfile } from "@/hooks/mutations/useUpdateProfile";
+import { useAuthStore } from "@/store/auth.store";
+import ProfileSettings, { SuccessToast } from "./ProfileSettings";
 
 type SettingsTab = "basic" | "password";
 type EmailStep = "enter" | "verify" | "otp" | "success";
@@ -40,53 +42,23 @@ function ActionBtn({ children, onClick, variant = "primary" }: { children: React
   );
 }
 
-// ─── Change Profile Photo modal ───────────────────────────────────────────────
-function ChangeProfilePhotoModal({ onClose }: { onClose: () => void }) {
-  return (
-    <Modal title="Change Profile Photo" onClose={onClose}>
-      <div className="px-6 py-6 flex flex-col items-center gap-5">
-        <div className="w-24 h-24 rounded-full overflow-hidden ring-2 ring-white/10">
-          <Image src="/assets/Team.png" alt="Profile" width={96} height={96} className="object-cover w-full h-full" />
-        </div>
-        <div className="w-full space-y-1.5">
-          <label className="text-sm text-white">Choose a new image</label>
-          <label className="flex items-center gap-3 w-full bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-3 text-sm text-white/40 cursor-pointer hover:border-white/20 transition-colors">
-            <span className="text-white/60 text-xs bg-white/10 px-2 py-1 rounded">Choose File</span>
-            <span>No file chosen</span>
-            <input type="file" accept="image/*" className="hidden" />
-          </label>
-        </div>
-      </div>
-      <div className="px-6 pb-6 border-t border-white/10 pt-4">
-        <div className="flex gap-3">
-          <ActionBtn variant="outline" onClick={onClose}>Cancel</ActionBtn>
-          <ActionBtn onClick={onClose}>Save Changes</ActionBtn>
-        </div>
-      </div>
-    </Modal>
-  );
-}
-
-// ─── Remove Profile Photo modal ───────────────────────────────────────────────
-function RemoveProfilePhotoModal({ onClose }: { onClose: () => void }) {
-  return (
-    <Modal title="Remove Profile Photo" onClose={onClose}>
-      <div className="px-6 py-6">
-        <p className="text-sm text-white">Are you sure you want to remove the current profile photo?</p>
-      </div>
-      <div className="px-6 pb-6 border-t border-white/10 pt-4">
-        <div className="flex gap-3">
-          <ActionBtn variant="outline" onClick={onClose}>Cancel</ActionBtn>
-          <ActionBtn onClick={onClose}>Remove Photo</ActionBtn>
-        </div>
-      </div>
-    </Modal>
-  );
-}
-
 // ─── Change Name modal ─────────────────────────────────────────────────────────
 function ChangeNameModal({ currentName, onClose, onSave }: { currentName: string; onClose: () => void; onSave: (name: string) => void }) {
   const [name, setName] = useState(currentName);
+  const { mutate: updateProfile, isPending } = useUpdateProfile();
+  const updateAdmin = useAuthStore((s) => s.updateAdmin);
+
+  const handleSave = () => {
+    if (!name.trim()) return;
+    updateProfile({ name: name.trim() }, {
+      onSuccess: (updated) => {
+        updateAdmin(updated);
+        onSave(updated.name);
+        onClose();
+      },
+    });
+  };
+
   return (
     <Modal title="Change Name" onClose={onClose}>
       <div className="px-6 py-5 space-y-4">
@@ -95,14 +67,14 @@ function ChangeNameModal({ currentName, onClose, onSave }: { currentName: string
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30"
+            className="w-full bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30"
           />
         </div>
       </div>
       <div className="px-6 pb-6 border-t border-white/10 pt-4">
         <div className="flex gap-3">
           <ActionBtn variant="outline" onClick={onClose}>Cancel</ActionBtn>
-          <ActionBtn onClick={() => { onSave(name); onClose(); }}>Save Changes</ActionBtn>
+          <ActionBtn onClick={handleSave}>{isPending ? "Saving…" : "Save Changes"}</ActionBtn>
         </div>
       </div>
     </Modal>
@@ -353,40 +325,26 @@ function ChangePasswordTab() {
 // ─── Main page ─────────────────────────────────────────────────────────────────
 export default function SettingsPage() {
   const [tab, setTab] = useState<SettingsTab>("basic");
-  const [name, setName] = useState("Christopher Nesscrance");
-  const email = "superadmin@castello.com";
-
   const [showChangeName, setShowChangeName] = useState(false);
   const [showChangeEmail, setShowChangeEmail] = useState(false);
-  const [showChangePhoto, setShowChangePhoto] = useState(false);
-  const [showRemovePhoto, setShowRemovePhoto] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
+
+  const admin = useAuthStore((s) => s.admin);
+  const displayName = admin?.name ?? "";
+  const displayEmail = admin?.email ?? "";
+
+  const triggerToast = (msg: string) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(""), 3000);
+  };
 
   return (
     <div className="p-6 min-h-screen">
+      <SuccessToast message={toastMsg} />
       <h1 className="text-2xl font-semibold text-white mb-6">Account Settings</h1>
 
-      {/* Profile card */}
-      <div className="bg-[#1a1a1a] border border-white/6 rounded-2xl p-6 mb-6 max-w-2xl">
-        <div className="flex items-start gap-5">
-          <div className="relative shrink-0">
-            <div className="w-20 h-20 rounded-full overflow-hidden ring-2 ring-white/10">
-              <Image src="/assets/Team.png" alt="Profile" width={80} height={80} className="object-cover w-full h-full" />
-            </div>
-          </div>
-          <div>
-            <p className="text-base font-semibold text-white mb-0.5">{name}</p>
-            <p className="text-sm text-white/40 mb-3">Super Admin</p>
-            <div className="flex flex-col gap-2">
-              <button onClick={() => setShowChangePhoto(true)} className="flex items-center gap-2 text-sm text-[#ff4d00] hover:text-[#e84400] transition-colors">
-                <Camera size={15} /> Change Profile Photo
-              </button>
-              <button onClick={() => setShowRemovePhoto(true)} className="flex items-center gap-2 text-sm text-[#ff4d00] hover:text-[#e84400] transition-colors">
-                <Trash2 size={15} /> Remove Profile Photo
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Profile card — photo upload/remove handled inside ProfileSettings */}
+      <ProfileSettings onToast={triggerToast} />
 
       {/* Tabs */}
       <div className="max-w-2xl">
@@ -407,29 +365,21 @@ export default function SettingsPage() {
         {/* Basic Information */}
         {tab === "basic" && (
           <div className="space-y-5">
-            {/* Full Name */}
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-white">Full Name</label>
               <div className="flex items-center justify-between bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-3">
-                <span className="text-sm text-white/60">{name}</span>
-                <button
-                  onClick={() => setShowChangeName(true)}
-                  className="text-white/40 hover:text-white transition-colors"
-                >
+                <span className="text-sm text-white/60">{displayName}</span>
+                <button onClick={() => setShowChangeName(true)} className="text-white/40 hover:text-white transition-colors">
                   <Pencil size={15} />
                 </button>
               </div>
             </div>
 
-            {/* Email Address */}
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-white">Email Address</label>
               <div className="flex items-center justify-between bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-3">
-                <span className="text-sm text-white/60">{email}</span>
-                <button
-                  onClick={() => setShowChangeEmail(true)}
-                  className="text-white/40 hover:text-white transition-colors"
-                >
+                <span className="text-sm text-white/60">{displayEmail}</span>
+                <button onClick={() => setShowChangeEmail(true)} className="text-white/40 hover:text-white transition-colors">
                   <Pencil size={15} />
                 </button>
               </div>
@@ -444,19 +394,13 @@ export default function SettingsPage() {
       {/* Modals */}
       {showChangeName && (
         <ChangeNameModal
-          currentName={name}
+          currentName={displayName}
           onClose={() => setShowChangeName(false)}
-          onSave={(n) => setName(n)}
+          onSave={() => triggerToast("Name updated successfully!")}
         />
       )}
       {showChangeEmail && (
         <ChangeEmailModal onClose={() => setShowChangeEmail(false)} />
-      )}
-      {showChangePhoto && (
-        <ChangeProfilePhotoModal onClose={() => setShowChangePhoto(false)} />
-      )}
-      {showRemovePhoto && (
-        <RemoveProfilePhotoModal onClose={() => setShowRemovePhoto(false)} />
       )}
     </div>
   );
