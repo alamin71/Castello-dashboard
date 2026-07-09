@@ -67,7 +67,7 @@ function ChangeNameModal({ currentName, onClose, onSave }: { currentName: string
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30"
+            className="w-full border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30"
           />
         </div>
       </div>

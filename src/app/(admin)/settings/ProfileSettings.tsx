@@ -5,7 +5,6 @@ import { Camera, Trash2, CheckCircle, X } from "lucide-react";
 import { useUpdateProfile } from "@/hooks/mutations/useUpdateProfile";
 import { useRemoveProfilePhoto } from "@/hooks/mutations/useRemoveProfilePhoto";
 import { useAuthStore } from "@/store/auth.store";
-import { authService } from "@/services/auth.service";
 import { ProfileAvatar } from "@/components/admin/ProfileAvatar";
 
 // ─── Modal shell ──────────────────────────────────────────────────────────────
@@ -39,8 +38,8 @@ function Btn({ children, onClick, outline, disabled }: {
 }
 
 // ─── Change Photo Modal ───────────────────────────────────────────────────────
-function ChangePhotoModal({ currentImage, currentName, onClose }: {
-  currentImage: string; currentName: string; onClose: () => void;
+function ChangePhotoModal({ currentImage, currentName, onClose, onSaved }: {
+  currentImage: string; currentName: string; onClose: () => void; onSaved: () => void;
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
@@ -57,6 +56,7 @@ function ChangePhotoModal({ currentImage, currentName, onClose }: {
     updateProfile({ image: file }, {
       onSuccess: (updated) => {
         updateAdmin(updated);
+        onSaved();
         onClose();
       },
     });
@@ -100,13 +100,8 @@ function RemovePhotoModal({ onClose, onDone }: { onClose: () => void; onDone: ()
 
   const handleRemove = () => {
     removePhoto(undefined, {
-      onSuccess: async () => {
-        try {
-          const fresh = await authService.getMe();
-          updateAdmin(fresh);
-        } catch {
-          if (admin) updateAdmin({ ...admin, image: "" });
-        }
+      onSuccess: () => {
+        if (admin) updateAdmin({ ...admin, image: "" });
         onDone();
         onClose();
       },
@@ -165,10 +160,8 @@ export default function ProfileSettings({ onToast }: { onToast: (msg: string) =>
         <ChangePhotoModal
           currentImage={displayImage}
           currentName={displayName}
-          onClose={() => {
-            setShowChange(false);
-            onToast("Profile photo updated!");
-          }}
+          onClose={() => setShowChange(false)}
+          onSaved={() => onToast("Profile photo updated!")}
         />
       )}
       {showRemove && (
