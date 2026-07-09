@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import ProfileSettings, { SuccessToast } from "./ProfileSettings";
 
 type SettingsTab = "basic" | "password";
-type EmailStep = "enter" | "otp";
+type EmailStep = "enter" | "otp" | "success";
 
 // ─── Shared modal shell ────────────────────────────────────────────────────────
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
@@ -132,12 +132,14 @@ function ChangeEmailModal({ onClose }: { onClose: () => void }) {
     const otpStr = otp.join("");
     if (otpStr.length < 6) return;
     verifyOtp({ otp: Number(otpStr) }, {
-      onSuccess: () => {
-        clearAuth();
-        document.cookie = "castello_auth=; path=/; max-age=0";
-        router.push(`/admin/login?email=${encodeURIComponent(email.trim())}`);
-      },
+      onSuccess: () => setStep("success"),
     });
+  };
+
+  const handleLogoutRedirect = () => {
+    clearAuth();
+    document.cookie = "castello_auth=; path=/; max-age=0";
+    router.push(`/admin/login?email=${encodeURIComponent(email.trim())}`);
   };
 
   const requestErrMsg = requestError
@@ -146,6 +148,39 @@ function ChangeEmailModal({ onClose }: { onClose: () => void }) {
   const verifyErrMsg = verifyError
     ? ((verifyError as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Invalid OTP.")
     : "";
+
+  if (step === "success") {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+        <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-120 mx-4">
+          <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/10">
+            <h2 className="text-lg font-semibold text-white">Email Updated</h2>
+            <button onClick={handleLogoutRedirect} className="text-white hover:text-red-400 transition-colors">
+              <X size={24} />
+            </button>
+          </div>
+          <div className="px-6 py-10 flex flex-col items-center text-center">
+            <div className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center mb-4">
+              <CheckCircle size={32} className="text-white" />
+            </div>
+            <p className="text-base font-semibold text-white mb-1">Email Updated Successfully</p>
+            <p className="text-sm text-white/50">
+              Your email has been changed to<br />
+              <span className="text-[#ff4d00]">{email}</span>
+            </p>
+          </div>
+          <div className="px-6 pb-6 border-t border-white/10 pt-4">
+            <button
+              onClick={handleLogoutRedirect}
+              className="w-full py-3 rounded-full bg-[#ff4d00] text-white text-sm font-medium hover:bg-[#e84400] transition-colors"
+            >
+              Continue to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (step === "otp") {
     return (
