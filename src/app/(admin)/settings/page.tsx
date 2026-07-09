@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { Pencil, Eye, EyeOff, Camera, Trash2, CheckCircle, X } from "lucide-react";
+import { useChangePassword } from "@/hooks/mutations/useChangePassword";
 
 type SettingsTab = "basic" | "password";
 type EmailStep = "enter" | "verify" | "otp" | "success";
@@ -240,7 +241,19 @@ function ChangeEmailModal({ onClose }: { onClose: () => void }) {
 }
 
 // ─── Password field with eye toggle ───────────────────────────────────────────
-function PasswordField({ label, placeholder }: { label: string; placeholder: string }) {
+function PasswordField({
+  label,
+  placeholder,
+  value,
+  onChange,
+  hasError,
+}: {
+  label: string;
+  placeholder: string;
+  value: string;
+  onChange: (v: string) => void;
+  hasError?: boolean;
+}) {
   const [show, setShow] = useState(false);
   return (
     <div className="space-y-1.5">
@@ -248,8 +261,12 @@ function PasswordField({ label, placeholder }: { label: string; placeholder: str
       <div className="relative">
         <input
           type={show ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-3 pr-11 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors"
+          className={`w-full bg-[#0f0f0f] border rounded-xl px-4 py-3 pr-11 text-sm text-white placeholder-white/30 outline-none transition-colors ${
+            hasError ? "border-red-500/60" : "border-white/10 focus:border-white/30"
+          }`}
         />
         <button
           type="button"
@@ -259,6 +276,69 @@ function PasswordField({ label, placeholder }: { label: string; placeholder: str
           {show ? <EyeOff size={16} /> : <Eye size={16} />}
         </button>
       </div>
+    </div>
+  );
+}
+
+// ─── Change Password tab ───────────────────────────────────────────────────────
+function ChangePasswordTab() {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
+  const { mutate: changePassword, isPending, error } = useChangePassword();
+
+  const errorMsg = error
+    ? ((error as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Failed to change password.")
+    : "";
+
+  const handleSubmit = () => {
+    if (!currentPassword || !newPassword || !confirmPassword) return;
+    changePassword(
+      { currentPassword, newPassword, confirmPassword },
+      {
+        onSuccess: () => {
+          setCurrentPassword("");
+          setNewPassword("");
+          setConfirmPassword("");
+          setSuccessMsg("Password changed successfully!");
+          setTimeout(() => setSuccessMsg(""), 3000);
+        },
+      }
+    );
+  };
+
+  return (
+    <div className="space-y-5">
+      <PasswordField
+        label="Current Password"
+        placeholder="Enter current password"
+        value={currentPassword}
+        onChange={setCurrentPassword}
+        hasError={!!errorMsg}
+      />
+      <PasswordField
+        label="New Password"
+        placeholder="Enter new password"
+        value={newPassword}
+        onChange={setNewPassword}
+      />
+      <PasswordField
+        label="Confirm New Password"
+        placeholder="Re-type new password"
+        value={confirmPassword}
+        onChange={setConfirmPassword}
+      />
+      {errorMsg && <p className="text-sm text-red-400">{errorMsg}</p>}
+      {successMsg && <p className="text-sm text-emerald-400">{successMsg}</p>}
+      <button
+        onClick={handleSubmit}
+        disabled={isPending}
+        className="w-full py-3 rounded-full bg-[#ff4d00] text-white text-sm font-medium hover:bg-[#e84400] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        {isPending ? "Saving…" : "Set New Password"}
+      </button>
     </div>
   );
 }
@@ -351,16 +431,7 @@ export default function SettingsPage() {
         )}
 
         {/* Change Password */}
-        {tab === "password" && (
-          <div className="space-y-5">
-            <PasswordField label="Current Password" placeholder="Enter current password" />
-            <PasswordField label="New Password" placeholder="Enter new password" />
-            <PasswordField label="Confirm New Password" placeholder="Re-type new password" />
-            <button className="w-full py-3 rounded-full bg-[#ff4d00] text-white text-sm font-medium hover:bg-[#e84400] transition-colors mt-2">
-              Set New Password
-            </button>
-          </div>
-        )}
+        {tab === "password" && <ChangePasswordTab />}
       </div>
 
       {/* Modals */}

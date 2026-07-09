@@ -57,3 +57,10 @@ export interface ResetPasswordPayload {
   confirmPassword: string;
   resetToken: string;
 }
+
+// PATCH /admin/change-password — header: Authorization Bearer token (auto-attached)
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}

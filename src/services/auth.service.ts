@@ -10,6 +10,7 @@ import {
   VerifyResetOtpPayload,
   VerifyResetOtpResponseData,
   ResetPasswordPayload,
+  ChangePasswordPayload,
 } from "@/types/auth.types";
 import { ApiResponse } from "@/types/api.types";
 
@@ -66,5 +67,10 @@ export const authService = {
       { newPassword, confirmPassword },
       { headers: { "reset-token": resetToken } }
     );
+  },
+
+  // Authorization Bearer token auto-attached by Axios interceptor
+  changePassword: async (payload: ChangePasswordPayload): Promise<void> => {
+    await apiClient.patch(API.auth.changePassword, payload);
   },
 };

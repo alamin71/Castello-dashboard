@@ -3,8 +3,9 @@
 
 const API = {
   auth: {
-    login:          "/admin/login",
-    logout:         "/admin/logout",
+    login:           "/admin/login",
+    logout:          "/admin/logout",
+    changePassword:  "/admin/change-password",
     forgotPassword:  "/admin/forget-password",
     resendOtp:       "/admin/resend-otp",
     verifyResetOtp:  "/admin/verify-reset-otp",
