@@ -84,6 +84,15 @@
   button, a, select, label, input[type="file"], input[type="checkbox"], input[type="radio"], [role="button"] {
     cursor: pointer;
   }
+  /* Fix browser autofill white background */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px #0f0f0f inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #ffffff;
+  }
   select {
     color-scheme: dark;
     accent-color: #ffffff;

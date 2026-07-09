@@ -285,7 +285,7 @@ function ChangePasswordTab() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
+  const [showToast, setShowToast] = useState(false);
 
   const { mutate: changePassword, isPending, error } = useChangePassword();
 
@@ -302,44 +302,51 @@ function ChangePasswordTab() {
           setCurrentPassword("");
           setNewPassword("");
           setConfirmPassword("");
-          setSuccessMsg("Password changed successfully!");
-          setTimeout(() => setSuccessMsg(""), 3000);
+          setShowToast(true);
+          setTimeout(() => setShowToast(false), 3000);
         },
       }
     );
   };
 
   return (
-    <div className="space-y-5">
-      <PasswordField
-        label="Current Password"
-        placeholder="Enter current password"
-        value={currentPassword}
-        onChange={setCurrentPassword}
-        hasError={!!errorMsg}
-      />
-      <PasswordField
-        label="New Password"
-        placeholder="Enter new password"
-        value={newPassword}
-        onChange={setNewPassword}
-      />
-      <PasswordField
-        label="Confirm New Password"
-        placeholder="Re-type new password"
-        value={confirmPassword}
-        onChange={setConfirmPassword}
-      />
-      {errorMsg && <p className="text-sm text-red-400">{errorMsg}</p>}
-      {successMsg && <p className="text-sm text-emerald-400">{successMsg}</p>}
-      <button
-        onClick={handleSubmit}
-        disabled={isPending}
-        className="w-full py-3 rounded-full bg-[#ff4d00] text-white text-sm font-medium hover:bg-[#e84400] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-      >
-        {isPending ? "Saving…" : "Set New Password"}
-      </button>
-    </div>
+    <>
+      {showToast && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-emerald-500 text-white text-sm font-medium px-5 py-3 rounded-2xl shadow-2xl">
+          <CheckCircle size={18} />
+          Password changed successfully!
+        </div>
+      )}
+      <div className="space-y-5">
+        <PasswordField
+          label="Current Password"
+          placeholder="Enter current password"
+          value={currentPassword}
+          onChange={setCurrentPassword}
+          hasError={!!errorMsg}
+        />
+        <PasswordField
+          label="New Password"
+          placeholder="Enter new password"
+          value={newPassword}
+          onChange={setNewPassword}
+        />
+        <PasswordField
+          label="Confirm New Password"
+          placeholder="Re-type new password"
+          value={confirmPassword}
+          onChange={setConfirmPassword}
+        />
+        {errorMsg && <p className="text-sm text-red-400">{errorMsg}</p>}
+        <button
+          onClick={handleSubmit}
+          disabled={isPending}
+          className="w-full py-3 rounded-full bg-[#ff4d00] text-white text-sm font-medium hover:bg-[#e84400] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {isPending ? "Saving…" : "Set New Password"}
+        </button>
+      </div>
+    </>
   );
 }
 
