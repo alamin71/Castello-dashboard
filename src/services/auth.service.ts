@@ -29,8 +29,8 @@ export const authService = {
     await apiClient.post(API.auth.logout);
   },
 
-  getMe: async () => {
-    const res = await apiClient.get(API.auth.me);
+  getMe: async (): Promise<AdminUser> => {
+    const res = await apiClient.get<ApiResponse<AdminUser>>(API.auth.me);
     return res.data.data;
   },
 

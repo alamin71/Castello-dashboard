@@ -1,17 +1,22 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Settings, LogOut } from "lucide-react";
+import { useAuthStore } from "@/store/auth.store";
+import { ProfileAvatar } from "@/components/admin/ProfileAvatar";
 
 export default function TopBar() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
+  const admin = useAuthStore((s) => s.admin);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
+
   const handleLogout = () => {
+    clearAuth();
     document.cookie = "castello_auth=; path=/; max-age=0";
     router.push("/admin/login");
   };
@@ -31,15 +36,9 @@ export default function TopBar() {
       <div className="relative" ref={ref}>
         <button
           onClick={() => setOpen((v) => !v)}
-          className="w-9 h-9 rounded-full bg-[#2a2a2a] overflow-hidden ring-1 ring-white/10 hover:ring-white/30 transition-all cursor-pointer"
+          className="w-9 h-9 rounded-full overflow-hidden ring-1 ring-white/10 hover:ring-white/30 transition-all cursor-pointer"
         >
-          <Image
-            src="/assets/Team.png"
-            alt="User"
-            width={36}
-            height={36}
-            className="object-cover w-full h-full"
-          />
+          <ProfileAvatar image={admin?.image ?? ""} name={admin?.name ?? ""} size="sm" />
         </button>
 
         {open && (
