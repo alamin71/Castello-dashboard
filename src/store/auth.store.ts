@@ -9,6 +9,7 @@ interface AuthState {
   isAuthenticated: boolean;
 
   setAuth: (admin: AdminUser, accessToken: string, refreshToken: string) => void;
+  updateAdmin: (admin: AdminUser) => void;
   clearAuth: () => void;
 }
 
@@ -23,11 +24,11 @@ export const useAuthStore = create<AuthState>()(
       setAuth: (admin, accessToken, refreshToken) =>
         set({ admin, accessToken, refreshToken, isAuthenticated: true }),
 
+      updateAdmin: (admin) => set({ admin }),
+
       clearAuth: () =>
         set({ admin: null, accessToken: null, refreshToken: null, isAuthenticated: false }),
     }),
-    {
-      name: "castello-auth", // persisted in localStorage
-    }
+    { name: "castello-auth" }
   )
 );

@@ -64,3 +64,9 @@ export interface ChangePasswordPayload {
   newPassword: string;
   confirmPassword: string;
 }
+
+// PATCH /admin/profile/update — form-data: name (text), image (file)
+export interface UpdateProfilePayload {
+  name?: string;
+  image?: File;
+}

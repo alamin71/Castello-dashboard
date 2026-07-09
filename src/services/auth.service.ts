@@ -11,6 +11,8 @@ import {
   VerifyResetOtpResponseData,
   ResetPasswordPayload,
   ChangePasswordPayload,
+  UpdateProfilePayload,
+  AdminUser,
 } from "@/types/auth.types";
 import { ApiResponse } from "@/types/api.types";
 
@@ -72,5 +74,23 @@ export const authService = {
   // Authorization Bearer token auto-attached by Axios interceptor
   changePassword: async (payload: ChangePasswordPayload): Promise<void> => {
     await apiClient.patch(API.auth.changePassword, payload);
+  },
+
+  // PATCH /admin/profile/update — multipart/form-data
+  updateProfile: async (payload: UpdateProfilePayload): Promise<AdminUser> => {
+    const formData = new FormData();
+    if (payload.name) formData.append("name", payload.name);
+    if (payload.image) formData.append("image", payload.image);
+    const res = await apiClient.patch<ApiResponse<AdminUser>>(
+      API.auth.updateProfile,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    return res.data.data;
+  },
+
+  // DELETE /admin/profile/photo
+  removeProfilePhoto: async (): Promise<void> => {
+    await apiClient.delete(API.auth.removeProfilePhoto);
   },
 };

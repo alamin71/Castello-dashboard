@@ -10,7 +10,9 @@ const API = {
     resendOtp:       "/admin/resend-otp",
     verifyResetOtp:  "/admin/verify-reset-otp",
     resetPassword:   "/admin/reset-password",
-    me:              "/admin/me",
+    me:                 "/admin/me",
+    updateProfile:      "/admin/profile/update",
+    removeProfilePhoto: "/admin/profile/photo",
   },
 
   categories: {
