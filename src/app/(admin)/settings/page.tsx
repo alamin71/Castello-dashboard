@@ -7,10 +7,11 @@ import { useUpdateProfile } from "@/hooks/mutations/useUpdateProfile";
 import { useRequestEmailChange } from "@/hooks/mutations/useRequestEmailChange";
 import { useVerifyEmailChangeOtp } from "@/hooks/mutations/useVerifyEmailChangeOtp";
 import { useAuthStore } from "@/store/auth.store";
+import { useRouter } from "next/navigation";
 import ProfileSettings, { SuccessToast } from "./ProfileSettings";
 
 type SettingsTab = "basic" | "password";
-type EmailStep = "enter" | "otp" | "success";
+type EmailStep = "enter" | "otp";
 
 // ─── Shared modal shell ────────────────────────────────────────────────────────
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
@@ -90,11 +91,12 @@ function ChangeEmailModal({ onClose, onSuccess }: { onClose: () => void; onSucce
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const updateAdmin = useAuthStore((s) => s.updateAdmin);
-  const admin = useAuthStore((s) => s.admin);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
+  const router = useRouter();
 
   const { mutate: requestChange, isPending: isRequesting, error: requestError } = useRequestEmailChange();
   const { mutate: verifyOtp, isPending: isVerifying, error: verifyError } = useVerifyEmailChangeOtp();
+
 
   const handleOtpChange = (idx: number, val: string) => {
     if (!/^\d?$/.test(val)) return;
@@ -106,6 +108,17 @@ function ChangeEmailModal({ onClose, onSuccess }: { onClose: () => void; onSucce
 
   const handleOtpKeyDown = (idx: number, e: React.KeyboardEvent) => {
     if (e.key === "Backspace" && !otp[idx] && idx > 0) otpRefs.current[idx - 1]?.focus();
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const digits = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!digits) return;
+    const next = [...otp];
+    digits.split("").forEach((d, i) => { next[i] = d; });
+    setOtp(next);
+    const lastIdx = Math.min(digits.length, 5);
+    otpRefs.current[lastIdx]?.focus();
   };
 
   const handleRequestOtp = () => {
@@ -120,8 +133,9 @@ function ChangeEmailModal({ onClose, onSuccess }: { onClose: () => void; onSucce
     if (otpStr.length < 6) return;
     verifyOtp({ otp: Number(otpStr) }, {
       onSuccess: () => {
-        if (admin) updateAdmin({ ...admin, email: email.trim() });
-        setStep("success");
+        clearAuth();
+        document.cookie = "castello_auth=; path=/; max-age=0";
+        router.push(`/admin/login?email=${encodeURIComponent(email.trim())}`);
       },
     });
   };
@@ -172,9 +186,8 @@ function ChangeEmailModal({ onClose, onSuccess }: { onClose: () => void; onSucce
                 value={digit}
                 onChange={(e) => handleOtpChange(idx, e.target.value)}
                 onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                className={`w-11 h-11 text-center text-base font-medium rounded-xl border outline-none transition-colors ${
-                  digit ? "border-white/30 text-white" : "bg-[#ff4d00]/10 border-[#ff4d00]/30 text-white"
-                } focus:border-white/50`}
+                onPaste={handleOtpPaste}
+                className="w-11 h-11 text-center text-base font-medium rounded-xl border border-white/20 text-white outline-none transition-colors focus:border-white/50"
               />
             ))}
           </div>
