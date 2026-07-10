@@ -9,18 +9,6 @@ export interface CategoryItem {
   updatedAt: string;
 }
 
-export interface CategoryMeta {
-  total: number;
-  page: number;
-  limit: number;
-  totalPage: number;
-}
-
-export interface CategoriesListResponse {
-  result: CategoryItem[];
-  meta: CategoryMeta;
-}
-
 export interface CreateCategoryPayload {
   name: string;
   image: File;

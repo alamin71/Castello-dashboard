@@ -300,9 +300,8 @@ export default function CategoryPage() {
 
   const { data, isLoading, isError } = useCategories(params);
 
-  const categories = data?.result ?? [];
-  const meta = data?.meta;
-  const totalPages = meta?.totalPage ?? 1;
+  const categories = data ?? [];
+  const totalPages = 1;
 
   const toggleStatus = (cat: CategoryItem) => {
     const newStatus: Status = cat.status === "active" ? "inactive" : "active";

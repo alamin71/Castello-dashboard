@@ -3,15 +3,14 @@ import API from "@/config/api.endpoints";
 import { ApiResponse } from "@/types/api.types";
 import {
   CategoryItem,
-  CategoriesListResponse,
   CreateCategoryPayload,
   UpdateCategoryPayload,
   CategoryListParams,
 } from "@/types/category.types";
 
 export const categoryService = {
-  list: async (params: CategoryListParams): Promise<CategoriesListResponse> => {
-    const res = await apiClient.get<ApiResponse<CategoriesListResponse>>(
+  list: async (params: CategoryListParams): Promise<CategoryItem[]> => {
+    const res = await apiClient.get<ApiResponse<CategoryItem[]>>(
       API.categories.list,
       { params }
     );
