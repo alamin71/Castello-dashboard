@@ -67,6 +67,12 @@ const API = {
     update: (id: string) => `/special-offers/${id}`,
     delete: (id: string) => `/special-offers/${id}`,
   },
+
+  policy: {
+    get:    (slug: string) => `/admin/policy/${slug}`,
+    create: (slug: string) => `/admin/policy/${slug}`,
+    update: (slug: string) => `/admin/policy/${slug}`,
+  },
 } as const;
 
 export default API;
