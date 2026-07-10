@@ -27,16 +27,16 @@ const API = {
 
   variants: {
     categories: {
-      list:   "/variant-categories",
-      create: "/variant-categories",
-      update: (id: string) => `/variant-categories/${id}`,
-      delete: (id: string) => `/variant-categories/${id}`,
+      list:   "/admin/menu/variants/categories",
+      create: "/admin/menu/variants/categories",
+      update: (id: string) => `/admin/menu/variants/categories/${id}`,
+      delete: (id: string) => `/admin/menu/variants/categories/${id}`,
     },
     items: {
-      list:   "/variant-items",
-      create: "/variant-items",
-      update: (id: string) => `/variant-items/${id}`,
-      delete: (id: string) => `/variant-items/${id}`,
+      list:   "/admin/menu/variants/items",
+      create: "/admin/menu/variants/items",
+      update: (id: string) => `/admin/menu/variants/items/${id}`,
+      delete: (id: string) => `/admin/menu/variants/items/${id}`,
     },
   },
 
