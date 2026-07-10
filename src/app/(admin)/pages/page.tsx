@@ -246,7 +246,7 @@ export default function PagesPage() {
   const [tab, setTab] = useState<PageTab>("privacy");
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col flex-1 overflow-hidden">
       {/* Sticky header — title + tabs */}
       <div className="shrink-0 px-6 pt-6 bg-[#0f0f0f]">
         <h1 className="text-2xl font-semibold text-white mb-6">Policy Pages</h1>
