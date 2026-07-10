@@ -16,6 +16,7 @@ import { useCategories } from "@/hooks/queries/useCategories";
 import { useCreateCategory } from "@/hooks/mutations/useCreateCategory";
 import { useUpdateCategory } from "@/hooks/mutations/useUpdateCategory";
 import { useDeleteCategory } from "@/hooks/mutations/useDeleteCategory";
+import { useReorderCategories } from "@/hooks/mutations/useReorderCategories";
 import { CategoryItem } from "@/types/category.types";
 
 type Status = "active" | "inactive";
@@ -290,7 +291,12 @@ export default function CategoryPage() {
   const [deleteCategory, setDeleteCategory] = useState<CategoryItem | null>(null);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
+  // drag-and-drop state
+  const [localOrder, setLocalOrder] = useState<CategoryItem[] | null>(null);
+  const dragIndexRef = useRef<number | null>(null);
+
   const { mutate: updateCategory } = useUpdateCategory();
+  const { mutate: reorderCategories } = useReorderCategories();
 
   const params = {
     page,
@@ -301,13 +307,44 @@ export default function CategoryPage() {
 
   const { data, isLoading, isError } = useCategories(params);
 
-  const categories = data ?? [];
+  // use localOrder when dragging, otherwise use server data
+  const categories = localOrder ?? data ?? [];
   const totalPages = 1;
+
+  // sync localOrder whenever server data arrives (reset after reorder persists)
+  const serverCategories = data ?? [];
+  if (!localOrder && serverCategories.length > 0 && categories !== serverCategories) {
+    // intentionally left empty — localOrder starts null, set on first drag
+  }
 
   const toggleStatus = (cat: CategoryItem) => {
     const newStatus: Status = cat.status === "active" ? "inactive" : "active";
     updateCategory({ id: cat._id, payload: { status: newStatus } });
     setOpenMenu(null);
+  };
+
+  const handleDragStart = (idx: number) => {
+    dragIndexRef.current = idx;
+  };
+
+  const handleDragOver = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    const from = dragIndexRef.current;
+    if (from === null || from === idx) return;
+    const reordered = [...categories];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(idx, 0, moved);
+    dragIndexRef.current = idx;
+    setLocalOrder(reordered);
+  };
+
+  const handleDrop = () => {
+    dragIndexRef.current = null;
+    if (!localOrder) return;
+    reorderCategories(localOrder.map((c) => c._id), {
+      onSuccess: () => setLocalOrder(null),
+      onError: () => setLocalOrder(null),
+    });
   };
 
   const pageNumbers = () => {
@@ -397,7 +434,14 @@ export default function CategoryPage() {
               </tr>
             ) : (
               categories.map((cat, idx) => (
-                <tr key={cat._id} className="border-b border-white/4 hover:bg-white/2 transition-colors">
+                <tr
+                  key={cat._id}
+                  draggable
+                  onDragStart={() => handleDragStart(idx)}
+                  onDragOver={(e) => handleDragOver(e, idx)}
+                  onDrop={handleDrop}
+                  className="border-b border-white/4 hover:bg-white/2 transition-colors"
+                >
                   <td className="px-5 py-4 text-sm text-white/60">
                     {String((page - 1) * limit + idx + 1).padStart(2, "0")}
                   </td>
@@ -444,8 +488,9 @@ export default function CategoryPage() {
                         <MoreVertical size={15} />
                       </button>
                       <button
-                        title="Drag to reorder (requires backend support)"
+                        title="Drag to reorder"
                         className="p-1.5 text-white/30 cursor-grab active:cursor-grabbing rounded-lg hover:bg-white/5"
+                        onMouseDown={(e) => e.stopPropagation()}
                       >
                         <GripVertical size={15} />
                       </button>
