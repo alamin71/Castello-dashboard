@@ -18,10 +18,10 @@ const API = {
   },
 
   categories: {
-    list:   "/categories",
-    create: "/categories",
-    update: (id: string) => `/categories/${id}`,
-    delete: (id: string) => `/categories/${id}`,
+    list:   "/admin/menu/categories",
+    create: "/admin/menu/categories",
+    update: (id: string) => `/admin/menu/categories/${id}`,
+    delete: (id: string) => `/admin/menu/categories/${id}`,
   },
 
   variants: {

@@ -1,0 +1,40 @@
+export interface CategoryItem {
+  _id: string;
+  categoryId: string;
+  name: string;
+  image: string;
+  status: "active" | "inactive";
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CategoryMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPage: number;
+}
+
+export interface CategoriesListResponse {
+  result: CategoryItem[];
+  meta: CategoryMeta;
+}
+
+export interface CreateCategoryPayload {
+  name: string;
+  image: File;
+}
+
+export interface UpdateCategoryPayload {
+  name?: string;
+  status?: "active" | "inactive";
+  image?: File;
+}
+
+export interface CategoryListParams {
+  page?: number;
+  limit?: number;
+  searchTerm?: string;
+  status?: "active" | "inactive";
+}
