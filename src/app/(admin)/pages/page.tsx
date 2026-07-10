@@ -107,14 +107,14 @@ function PolicyEditor({ tab }: { tab: PageTab }) {
   const SIZES = ["12", "14", "16", "18", "20", "24", "32"];
 
   return (
-    <>
+    <div className="flex flex-col flex-1 min-h-0 pb-6">
       {toast && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-emerald-500 text-white text-sm font-medium px-5 py-3 rounded-2xl shadow-2xl">
           <CheckCircle size={18} /> {toast}
         </div>
       )}
 
-      <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-visible">
+      <div className="flex flex-col flex-1 min-h-0 bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden">
         {/* Toolbar */}
         <div className="flex items-center gap-0.5 px-4 py-2.5 border-b border-white/10 flex-wrap relative">
 
@@ -209,21 +209,22 @@ function PolicyEditor({ tab }: { tab: PageTab }) {
           </button>
         </div>
 
-        {/* Content editable */}
+        {/* Content editable — fills remaining space, scrolls internally */}
         {isLoading ? (
-          <div className="min-h-96 p-6 flex items-center justify-center text-white/30 text-sm">Loading…</div>
+          <div className="flex-1 p-6 flex items-center justify-center text-white/30 text-sm">Loading…</div>
         ) : (
           <div
             ref={editorRef}
             contentEditable
             suppressContentEditableWarning
             onClick={() => { setAlignOpen(false); setFontOpen(false); setSizeOpen(false); }}
-            className="min-h-96 p-6 text-sm text-white/80 outline-none leading-relaxed [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-1 [&_p]:mb-3 [&_strong]:text-white [&_b]:text-white"
+            className="flex-1 overflow-y-auto p-6 text-sm text-white/80 outline-none leading-relaxed [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-1 [&_p]:mb-3 [&_strong]:text-white [&_b]:text-white"
           />
         )}
       </div>
 
-      <div className="flex justify-end mt-6">
+      {/* Save button — shrink-0 so it never gets pushed out */}
+      <div className="shrink-0 flex justify-end py-4">
         <button
           onClick={handleSave}
           disabled={isSaving || isLoading}
@@ -236,7 +237,7 @@ function PolicyEditor({ tab }: { tab: PageTab }) {
       {(alignOpen || fontOpen || sizeOpen) && (
         <div className="fixed inset-0 z-40" onClick={() => { setAlignOpen(false); setFontOpen(false); setSizeOpen(false); }} />
       )}
-    </>
+    </div>
   );
 }
 
@@ -245,32 +246,35 @@ export default function PagesPage() {
   const [tab, setTab] = useState<PageTab>("privacy");
 
   return (
-    <div className="p-6 min-h-screen">
-      <h1 className="text-2xl font-semibold text-white mb-6">Policy Pages</h1>
-
-      {/* Tabs */}
-      <div className="flex border-b border-white/10 mb-6">
-        {(Object.keys(TAB_LABELS) as PageTab[]).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-1 pb-3 mr-6 text-sm font-medium border-b-2 transition-colors ${
-              tab === t
-                ? "border-[#ff4d00] text-[#ff4d00]"
-                : "border-transparent text-white/40 hover:text-white/70"
-            }`}
-          >
-            {TAB_LABELS[t]}
-          </button>
-        ))}
+    <div className="flex flex-col h-screen overflow-hidden">
+      {/* Sticky header — title + tabs */}
+      <div className="shrink-0 px-6 pt-6 bg-[#0f0f0f]">
+        <h1 className="text-2xl font-semibold text-white mb-6">Policy Pages</h1>
+        <div className="flex border-b border-white/10">
+          {(Object.keys(TAB_LABELS) as PageTab[]).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-1 pb-3 mr-6 text-sm font-medium border-b-2 transition-colors ${
+                tab === t
+                  ? "border-[#ff4d00] text-[#ff4d00]"
+                  : "border-transparent text-white/40 hover:text-white/70"
+              }`}
+            >
+              {TAB_LABELS[t]}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Mount separate editor per tab so each has its own state/ref */}
-      {(Object.keys(TAB_LABELS) as PageTab[]).map((t) => (
-        <div key={t} className={t === tab ? "block" : "hidden"}>
-          <PolicyEditor tab={t} />
-        </div>
-      ))}
+      {/* Scrollable editor area */}
+      <div className="flex-1 min-h-0 px-6 pt-6 flex flex-col">
+        {(Object.keys(TAB_LABELS) as PageTab[]).map((t) => (
+          <div key={t} className={`${t === tab ? "flex" : "hidden"} flex-col flex-1 min-h-0`}>
+            <PolicyEditor tab={t} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
