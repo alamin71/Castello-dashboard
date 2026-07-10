@@ -5,6 +5,7 @@ export interface CategoryItem {
   image: string;
   status: "active" | "inactive";
   isDeleted: boolean;
+  totalProducts?: number;
   createdAt: string;
   updatedAt: string;
 }

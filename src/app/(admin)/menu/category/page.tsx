@@ -10,6 +10,7 @@ import {
   X,
   ChevronDown,
   Trash2,
+  GripVertical,
 } from "lucide-react";
 import { useCategories } from "@/hooks/queries/useCategories";
 import { useCreateCategory } from "@/hooks/mutations/useCreateCategory";
@@ -368,7 +369,9 @@ export default function CategoryPage() {
             <tr className="border-b border-white/6">
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">SL</th>
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Category ID</th>
+              <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Photo</th>
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Category Name</th>
+              <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Assigned Products</th>
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Status</th>
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Action</th>
             </tr>
@@ -376,19 +379,19 @@ export default function CategoryPage() {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={5} className="px-5 py-12 text-center text-sm text-white/40">
+                <td colSpan={7} className="px-5 py-12 text-center text-sm text-white/40">
                   Loading...
                 </td>
               </tr>
             ) : isError ? (
               <tr>
-                <td colSpan={5} className="px-5 py-12 text-center text-sm text-red-400">
+                <td colSpan={7} className="px-5 py-12 text-center text-sm text-red-400">
                   Failed to load categories.
                 </td>
               </tr>
             ) : categories.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-5 py-12 text-center text-sm text-white/40">
+                <td colSpan={7} className="px-5 py-12 text-center text-sm text-white/40">
                   No categories found.
                 </td>
               </tr>
@@ -400,25 +403,28 @@ export default function CategoryPage() {
                   </td>
                   <td className="px-5 py-4 text-sm text-white/60">{cat.categoryId}</td>
                   <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-white/10 overflow-hidden shrink-0">
-                        {cat.image ? (
-                          <img
-                            src={cat.image}
-                            alt={cat.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = "none";
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-white/30 text-xs">
-                            {cat.name[0]}
-                          </div>
-                        )}
-                      </div>
-                      <span className="text-sm text-white font-medium">{cat.name}</span>
+                    <div className="w-9 h-9 rounded-lg bg-white/10 overflow-hidden shrink-0">
+                      {cat.image ? (
+                        <img
+                          src={cat.image}
+                          alt={cat.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-white/30 text-xs">
+                          {cat.name[0]}
+                        </div>
+                      )}
                     </div>
+                  </td>
+                  <td className="px-5 py-4">
+                    <span className="text-sm text-white font-medium">{cat.name}</span>
+                  </td>
+                  <td className="px-5 py-4 text-sm text-white/60">
+                    {String(cat.totalProducts ?? 0).padStart(2, "0")}
                   </td>
                   <td className="px-5 py-4">
                     <StatusBadge status={cat.status} />
@@ -436,6 +442,12 @@ export default function CategoryPage() {
                         className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"
                       >
                         <MoreVertical size={15} />
+                      </button>
+                      <button
+                        title="Drag to reorder (requires backend support)"
+                        className="p-1.5 text-white/30 cursor-grab active:cursor-grabbing rounded-lg hover:bg-white/5"
+                      >
+                        <GripVertical size={15} />
                       </button>
                       {openMenu === cat._id && (
                         <div className="absolute right-0 top-8 z-20 bg-[#232323] border border-white/10 rounded-xl shadow-xl min-w-36 py-1">
