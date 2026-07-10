@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Plus,
   Search,
@@ -12,6 +12,7 @@ import {
   Trash2,
   GripVertical,
 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCategories } from "@/hooks/queries/useCategories";
 import { useCreateCategory } from "@/hooks/mutations/useCreateCategory";
 import { useUpdateCategory } from "@/hooks/mutations/useUpdateCategory";
@@ -183,7 +184,7 @@ function EditCategoryModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter category name"
-              className="w-full bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors"
+              className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors"
             />
           </div>
           <div className="space-y-1.5">
@@ -294,7 +295,9 @@ export default function CategoryPage() {
   // drag-and-drop state
   const [localOrder, setLocalOrder] = useState<CategoryItem[] | null>(null);
   const dragIndexRef = useRef<number | null>(null);
+  const pendingReorderRef = useRef(false);
 
+  const queryClient = useQueryClient();
   const { mutate: updateCategory } = useUpdateCategory();
   const { mutate: reorderCategories } = useReorderCategories();
 
@@ -307,15 +310,17 @@ export default function CategoryPage() {
 
   const { data, isLoading, isError } = useCategories(params);
 
-  // use localOrder when dragging, otherwise use server data
+  // once server data arrives after a reorder, clear localOrder so UI shows confirmed state
+  useEffect(() => {
+    if (pendingReorderRef.current && data) {
+      setLocalOrder(null);
+      pendingReorderRef.current = false;
+    }
+  }, [data]);
+
+  // use localOrder optimistically, fall back to server data
   const categories = localOrder ?? data ?? [];
   const totalPages = 1;
-
-  // sync localOrder whenever server data arrives (reset after reorder persists)
-  const serverCategories = data ?? [];
-  if (!localOrder && serverCategories.length > 0 && categories !== serverCategories) {
-    // intentionally left empty — localOrder starts null, set on first drag
-  }
 
   const toggleStatus = (cat: CategoryItem) => {
     const newStatus: Status = cat.status === "active" ? "inactive" : "active";
@@ -341,9 +346,17 @@ export default function CategoryPage() {
   const handleDrop = () => {
     dragIndexRef.current = null;
     if (!localOrder) return;
-    reorderCategories(localOrder.map((c) => c._id), {
-      onSuccess: () => setLocalOrder(null),
-      onError: () => setLocalOrder(null),
+    const orderedIds = localOrder.map((c) => c._id);
+    reorderCategories(orderedIds, {
+      onSuccess: () => {
+        // mark that we're waiting for server data, then invalidate to refetch
+        pendingReorderRef.current = true;
+        queryClient.invalidateQueries({ queryKey: ["categories"] });
+      },
+      onError: () => {
+        // rollback to server data
+        setLocalOrder(null);
+      },
     });
   };
 
