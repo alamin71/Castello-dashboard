@@ -643,25 +643,41 @@ export default function AddProductPage() {
               <label className="text-sm font-medium text-white">
                 <span className="text-red-400">*</span> Main Image
               </label>
-              <div
-                onClick={() => mainImageRef.current?.click()}
-                className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4 text-center cursor-pointer hover:border-white/20 transition-colors overflow-hidden"
-              >
+              <div className="relative bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden">
                 {mainImagePreview ? (
-                  <div className="relative w-full aspect-square rounded-lg overflow-hidden">
-                    <Image
-                      src={mainImagePreview}
-                      alt="Main image"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ) : (
                   <>
+                    <div
+                      onClick={() => mainImageRef.current?.click()}
+                      className="relative w-full aspect-square cursor-pointer"
+                    >
+                      <Image
+                        src={mainImagePreview}
+                        alt="Main image"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMainImage(null);
+                        setMainImagePreview(null);
+                        if (mainImageRef.current) mainImageRef.current.value = "";
+                      }}
+                      className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-black/80 transition-colors z-10"
+                    >
+                      <X size={14} />
+                    </button>
+                  </>
+                ) : (
+                  <div
+                    onClick={() => mainImageRef.current?.click()}
+                    className="p-6 text-center cursor-pointer hover:border-white/20 transition-colors"
+                  >
                     <CloudUpload size={28} className="mx-auto text-white/30 mb-2" />
                     <p className="text-sm text-white/40">Upload an image</p>
                     <p className="text-xs text-white/25 mt-1">Webp, JPEG, PNG · 220×220 px</p>
-                  </>
+                  </div>
                 )}
               </div>
               <input
@@ -679,16 +695,30 @@ export default function AddProductPage() {
               {galleryPreviews.length > 0 ? (
                 <div className="grid grid-cols-3 gap-1.5">
                   {galleryPreviews.map((src, i) => (
-                    <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-white/5">
+                    <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-white/5 group">
                       <Image src={src} alt={`Gallery ${i + 1}`} fill className="object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newFiles = gallery.filter((_, fi) => fi !== i);
+                          const newPreviews = galleryPreviews.filter((_, pi) => pi !== i);
+                          setGallery(newFiles);
+                          setGalleryPreviews(newPreviews);
+                        }}
+                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
+                      >
+                        <X size={12} />
+                      </button>
                     </div>
                   ))}
-                  <div
-                    onClick={() => galleryRef.current?.click()}
-                    className="aspect-square rounded-lg border border-white/10 flex items-center justify-center cursor-pointer hover:border-white/20 transition-colors bg-[#1a1a1a]"
-                  >
-                    <Plus size={18} className="text-white/30" />
-                  </div>
+                  {gallery.length < 5 && (
+                    <div
+                      onClick={() => galleryRef.current?.click()}
+                      className="aspect-square rounded-lg border border-white/10 flex items-center justify-center cursor-pointer hover:border-white/20 transition-colors bg-[#1a1a1a]"
+                    >
+                      <Plus size={18} className="text-white/30" />
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div

@@ -9,6 +9,11 @@ import {
 } from "@/types/product.types";
 
 export const productService = {
+  getById: async (id: string): Promise<ProductItem> => {
+    const res = await apiClient.get(`${API.products.list}/${id}`);
+    return res.data?.data;
+  },
+
   list: async (params: ProductListParams): Promise<ProductListResponse> => {
     const res = await apiClient.get(API.products.list, { params });
     const data = res.data?.data;

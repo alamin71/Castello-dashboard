@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Plus, Search, Pencil, Trash2, ChevronDown } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, ChevronDown, MoreVertical } from "lucide-react";
 import { useProducts } from "@/hooks/queries/useProducts";
 import { useUpdateProduct } from "@/hooks/mutations/useUpdateProduct";
 import { useDeleteProduct } from "@/hooks/mutations/useDeleteProduct";
@@ -108,6 +108,7 @@ function DeleteModal({
 export default function ProductsPage() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState<"" | "single" | "variant">("");
   const [statusFilter, setStatusFilter] = useState<"" | "active" | "inactive">("");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
@@ -119,6 +120,7 @@ export default function ProductsPage() {
     limit,
     ...(search && { searchTerm: search }),
     ...(categoryFilter && { categoryId: categoryFilter }),
+    ...(typeFilter && { type: typeFilter as "single" | "variant" }),
     ...(statusFilter && { status: statusFilter as "active" | "inactive" }),
   };
 
@@ -183,6 +185,18 @@ export default function ProductsPage() {
               {categories.map((c) => (
                 <option key={c._id} value={c._id}>{c.name}</option>
               ))}
+            </select>
+            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+          </div>
+          <div className="relative">
+            <select
+              value={typeFilter}
+              onChange={(e) => { setTypeFilter(e.target.value as "" | "single" | "variant"); setPage(1); }}
+              className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white/20 scheme-dark"
+            >
+              <option value="">All Type</option>
+              <option value="single">Single</option>
+              <option value="variant">Variant</option>
             </select>
             <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
           </div>
@@ -272,10 +286,10 @@ export default function ProductsPage() {
                   </td>
                   <td className="px-5 py-4">
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full border ${
+                      className={`text-xs px-2 py-0.5 rounded-full border text-white ${
                         product.type === "single"
-                          ? "border-blue-500/40 text-blue-400"
-                          : "border-purple-500/40 text-purple-400"
+                          ? "border-blue-500/40"
+                          : "border-purple-500/40"
                       }`}
                     >
                       {product.type === "single" ? "Single" : "Variant"}
@@ -299,7 +313,7 @@ export default function ProductsPage() {
                         onClick={() => setOpenMenu(openMenu === product._id ? null : product._id)}
                         className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"
                       >
-                        <Trash2 size={15} />
+                        <MoreVertical size={15} />
                       </button>
                       {openMenu === product._id && (
                         <div className="absolute right-0 top-8 z-20 bg-[#232323] border border-white/10 rounded-xl shadow-xl min-w-36 py-1">
