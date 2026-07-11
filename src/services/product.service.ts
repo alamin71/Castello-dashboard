@@ -51,7 +51,9 @@ export const productService = {
       });
     }
 
-    const res = await apiClient.post(API.products.create, form);
+    const res = await apiClient.post(API.products.create, form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     return res.data.data;
   },
 
@@ -62,7 +64,9 @@ export const productService = {
     if (payload.status) form.append("status", payload.status);
     if (payload.availability) form.append("availability", JSON.stringify(payload.availability));
     if (payload.mainImage) form.append("mainImage", payload.mainImage);
-    const res = await apiClient.patch(API.products.update(id), form);
+    const res = await apiClient.patch(API.products.update(id), form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     return res.data.data;
   },
 
