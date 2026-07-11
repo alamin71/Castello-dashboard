@@ -43,7 +43,9 @@ function PriceCell({ product }: { product: ProductItem }) {
     <div className="space-y-0.5">
       {product.variants.map((v, i) => {
         const itemName =
-          typeof v.variantItemId === "object" ? v.variantItemId.name : null;
+          v.variantItemId !== null && typeof v.variantItemId === "object"
+            ? v.variantItemId.name
+            : null;
         return (
           <div key={i} className="text-xs text-white/60">
             {itemName && (
