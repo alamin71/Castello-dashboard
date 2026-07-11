@@ -107,9 +107,11 @@ function ItemModal({
   onClose: () => void;
 }) {
   const [name, setName] = useState(existing?.name ?? "");
-  const [categoryId, setCategoryId] = useState(
-    existing?.variantCategoryId ?? ""
-  );
+  const [categoryId, setCategoryId] = useState(() => {
+    if (!existing) return "";
+    const v = existing.variantCategoryId;
+    return typeof v === "string" ? v : v?._id ?? "";
+  });
 
   const { mutate: createItem, isPending: creating } = useCreateVariantItem();
   const { mutate: updateItem, isPending: updating } = useUpdateVariantItem();
@@ -429,7 +431,12 @@ export default function VariantsPage() {
                     <td className="px-5 py-4 text-sm text-white/60">{item.variantItemId}</td>
                     <td className="px-5 py-4 text-sm text-white font-medium">{item.name}</td>
                     <td className="px-5 py-4 text-sm text-white/70">
-                      {item.variantCategory?.name ?? allCategories.find(c => c._id === item.variantCategoryId)?.name ?? "—"}
+                      {(() => {
+                        if (item.variantCategory?.name) return item.variantCategory.name;
+                        if (typeof item.variantCategoryId === "object" && item.variantCategoryId?.name) return item.variantCategoryId.name;
+                        const id = typeof item.variantCategoryId === "string" ? item.variantCategoryId : item.variantCategoryId?._id;
+                        return allCategories.find(c => c._id === id)?.name ?? "—";
+                      })()}
                     </td>
                     <td className="px-5 py-4"><StatusBadge status={item.status} /></td>
                     <td className="px-5 py-4">

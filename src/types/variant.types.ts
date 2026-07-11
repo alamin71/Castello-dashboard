@@ -14,7 +14,7 @@ export interface VariantItem {
   _id: string;
   variantItemId: string;
   name: string;
-  variantCategoryId: string;
+  variantCategoryId: string | { _id: string; name: string };
   variantCategory?: { _id: string; name: string };
   status: "active" | "inactive";
   isDeleted: boolean;

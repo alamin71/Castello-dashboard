@@ -15,11 +15,11 @@ import {
 export const variantService = {
   // ── Categories ──────────────────────────────────────────────
   listCategories: async (params: VariantListParams): Promise<VariantCategory[]> => {
-    const res = await apiClient.get<ApiResponse<VariantCategory[]>>(
-      API.variants.categories.list,
-      { params }
-    );
-    return res.data.data;
+    const res = await apiClient.get(API.variants.categories.list, { params });
+    const data = res.data?.data;
+    if (Array.isArray(data)) return data;
+    if (data?.result && Array.isArray(data.result)) return data.result;
+    return [];
   },
 
   createCategory: async (payload: CreateVariantCategoryPayload): Promise<VariantCategory> => {
@@ -44,11 +44,11 @@ export const variantService = {
 
   // ── Items ────────────────────────────────────────────────────
   listItems: async (params: VariantItemListParams): Promise<VariantItem[]> => {
-    const res = await apiClient.get<ApiResponse<VariantItem[]>>(
-      API.variants.items.list,
-      { params }
-    );
-    return res.data.data;
+    const res = await apiClient.get(API.variants.items.list, { params });
+    const data = res.data?.data;
+    if (Array.isArray(data)) return data;
+    if (data?.result && Array.isArray(data.result)) return data.result;
+    return [];
   },
 
   createItem: async (payload: CreateVariantItemPayload): Promise<VariantItem> => {
