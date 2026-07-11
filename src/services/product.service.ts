@@ -31,14 +31,10 @@ export const productService = {
 
     if (payload.toppingCategoryIds && payload.toppingCategoryIds.length > 0) {
       payload.toppingCategoryIds.forEach((id) => form.append("toppingCategoryIds", id));
-    } else {
-      form.append("toppingCategoryIds", "[]");
     }
 
     if (payload.defaultToppingItemIds && payload.defaultToppingItemIds.length > 0) {
       payload.defaultToppingItemIds.forEach((id) => form.append("defaultToppingItemIds", id));
-    } else {
-      form.append("defaultToppingItemIds", "[]");
     }
 
     form.append("availability", JSON.stringify(payload.availability));

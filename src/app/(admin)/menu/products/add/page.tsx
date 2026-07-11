@@ -416,8 +416,11 @@ export default function AddProductPage() {
       {
         onSuccess: () => router.push("/menu/products"),
         onError: (err: unknown) => {
-          const msg =
-            err instanceof Error ? err.message : "Failed to create product.";
+          const axiosErr = err as { response?: { data?: { message?: string | string[] } } };
+          const backendMsg = axiosErr?.response?.data?.message;
+          const msg = Array.isArray(backendMsg)
+            ? backendMsg.join(", ")
+            : backendMsg ?? (err instanceof Error ? err.message : "Failed to create product.");
           setError(msg);
         },
       }
