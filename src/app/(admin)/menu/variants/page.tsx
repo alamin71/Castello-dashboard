@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import {
-  Plus, Search, Pencil, MoreVertical, X, ChevronDown, Trash2, CloudUpload,
+  Plus, Search, Pencil, MoreVertical, X, ChevronDown, Trash2,
 } from "lucide-react";
 import { useVariantCategories } from "@/hooks/queries/useVariantCategories";
 import { useVariantItems } from "@/hooks/queries/useVariantItems";
@@ -37,28 +37,17 @@ function CategoryModal({
   onClose: () => void;
 }) {
   const [name, setName] = useState(existing?.name ?? "");
-  const [image, setImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   const { mutate: createCategory, isPending: creating } = useCreateVariantCategory();
   const { mutate: updateCategory, isPending: updating } = useUpdateVariantCategory();
   const isPending = creating || updating;
 
-  const handleFile = (file: File) => {
-    setImage(file);
-    setPreview(URL.createObjectURL(file));
-  };
-
   const handleSubmit = () => {
     if (!name.trim()) return;
     if (existing) {
-      const payload: { name?: string; image?: File } = {};
-      if (name.trim() !== existing.name) payload.name = name.trim();
-      if (image) payload.image = image;
-      updateCategory({ id: existing._id, payload }, { onSuccess: () => onClose() });
+      updateCategory({ id: existing._id, payload: { name: name.trim() } }, { onSuccess: () => onClose() });
     } else {
-      createCategory({ name: name.trim(), ...(image ? { image } : {}) }, { onSuccess: () => onClose() });
+      createCategory({ name: name.trim() }, { onSuccess: () => onClose() });
     }
   };
 
@@ -73,7 +62,7 @@ function CategoryModal({
             <X size={20} />
           </button>
         </div>
-        <div className="px-6 py-5 space-y-5">
+        <div className="px-6 py-5">
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-white">
               <span className="text-red-400">*</span> Variant Category
@@ -82,30 +71,10 @@ function CategoryModal({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
               placeholder="Enter category name"
               className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors"
             />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-white">Category Image <span className="text-white/40 text-xs">(optional)</span></label>
-            <div
-              onClick={() => fileRef.current?.click()}
-              className="border-2 border-dashed border-white/15 rounded-xl p-6 text-center cursor-pointer hover:border-white/25 transition-colors"
-            >
-              {preview ? (
-                <img src={preview} alt="preview" className="mx-auto h-16 w-16 object-cover rounded-xl" />
-              ) : existing?.image ? (
-                <img src={existing.image} alt={existing.name} className="mx-auto h-16 w-16 object-cover rounded-xl" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-              ) : (
-                <>
-                  <CloudUpload size={28} className="mx-auto text-white/40 mb-2" />
-                  <p className="text-sm text-white/50">Click to upload image</p>
-                </>
-              )}
-              <p className="text-xs text-white/30 mt-1">Webp, JPEG, PNG</p>
-            </div>
-            <input ref={fileRef} type="file" accept="image/*" className="hidden"
-              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
           </div>
         </div>
         <div className="px-6 pb-6 pt-2 border-t border-white/10">
@@ -282,12 +251,15 @@ export default function VariantsPage() {
 
   const { data: catData, isLoading: catLoading, isError: catError } = useVariantCategories(catParams);
   const { data: itemData, isLoading: itemLoading, isError: itemError } = useVariantItems(itemParams);
+  // all categories (no filter) — for dropdown and category name lookup in items table
+  const { data: allCatData } = useVariantCategories({});
   const { mutate: updateCat } = useUpdateVariantCategory();
   const { mutate: deleteCatMutation, isPending: deletingCat } = useDeleteVariantCategory();
   const { mutate: updateItem } = useUpdateVariantItem();
   const { mutate: deleteItemMutation, isPending: deletingItem } = useDeleteVariantItem();
 
   const categories = catData ?? [];
+  const allCategories = allCatData ?? [];
   const items = itemData ?? [];
 
   const toggleCatStatus = (cat: VariantCategory) => {
@@ -349,7 +321,7 @@ export default function VariantsPage() {
                 className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white/20 [color-scheme:dark]"
               >
                 <option value="">All Category</option>
-                {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+                {allCategories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
               </select>
               <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
             </div>
@@ -379,6 +351,7 @@ export default function VariantsPage() {
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">SL</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Category ID</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Variant Category</th>
+                  <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Assigned Items</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Status</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Action</th>
                 </>
@@ -397,17 +370,20 @@ export default function VariantsPage() {
           <tbody>
             {tab === "categories" ? (
               catLoading ? (
-                <tr><td colSpan={5} className="px-5 py-12 text-center text-sm text-white/40">Loading...</td></tr>
+                <tr><td colSpan={6} className="px-5 py-12 text-center text-sm text-white/40">Loading...</td></tr>
               ) : catError ? (
-                <tr><td colSpan={5} className="px-5 py-12 text-center text-sm text-red-400">Failed to load categories.</td></tr>
+                <tr><td colSpan={6} className="px-5 py-12 text-center text-sm text-red-400">Failed to load categories.</td></tr>
               ) : categories.length === 0 ? (
-                <tr><td colSpan={5} className="px-5 py-12 text-center text-sm text-white/40">No categories found.</td></tr>
+                <tr><td colSpan={6} className="px-5 py-12 text-center text-sm text-white/40">No categories found.</td></tr>
               ) : (
                 categories.map((cat, idx) => (
                   <tr key={cat._id} className="border-b border-white/4 hover:bg-white/2 transition-colors">
                     <td className="px-5 py-4 text-sm text-white/60">{String(idx + 1).padStart(2, "0")}</td>
                     <td className="px-5 py-4 text-sm text-white/60">{cat.variantCategoryId}</td>
                     <td className="px-5 py-4 text-sm text-white font-medium">{cat.name}</td>
+                    <td className="px-5 py-4 text-sm text-white/60">
+                      {String(cat.totalItems ?? 0).padStart(2, "0")}
+                    </td>
                     <td className="px-5 py-4"><StatusBadge status={cat.status} /></td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-1 relative">
@@ -453,7 +429,7 @@ export default function VariantsPage() {
                     <td className="px-5 py-4 text-sm text-white/60">{item.variantItemId}</td>
                     <td className="px-5 py-4 text-sm text-white font-medium">{item.name}</td>
                     <td className="px-5 py-4 text-sm text-white/70">
-                      {item.variantCategory?.name ?? categories.find(c => c._id === item.variantCategoryId)?.name ?? "—"}
+                      {item.variantCategory?.name ?? allCategories.find(c => c._id === item.variantCategoryId)?.name ?? "—"}
                     </td>
                     <td className="px-5 py-4"><StatusBadge status={item.status} /></td>
                     <td className="px-5 py-4">
@@ -503,8 +479,8 @@ export default function VariantsPage() {
         />
       )}
 
-      {showAddItem && <ItemModal categories={categories} onClose={() => setShowAddItem(false)} />}
-      {editItem && <ItemModal existing={editItem} categories={categories} onClose={() => setEditItem(null)} />}
+      {showAddItem && <ItemModal categories={allCategories} onClose={() => setShowAddItem(false)} />}
+      {editItem && <ItemModal existing={editItem} categories={allCategories} onClose={() => setEditItem(null)} />}
       {deleteItem && (
         <DeleteModal
           label={deleteItem.name}

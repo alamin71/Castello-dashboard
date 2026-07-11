@@ -5,6 +5,7 @@ export interface VariantCategory {
   image?: string;
   status: "active" | "inactive";
   isDeleted: boolean;
+  totalItems?: number;
   createdAt: string;
   updatedAt: string;
 }
