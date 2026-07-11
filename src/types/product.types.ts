@@ -49,9 +49,16 @@ export interface CreateProductPayload {
 export interface UpdateProductPayload {
   name?: string;
   description?: string;
+  categoryId?: string;
+  price?: number;
   status?: "active" | "inactive";
+  toppingCategoryIds?: string[];
+  defaultToppingItemIds?: string[];
   availability?: { website: boolean; pos: boolean; kiosk: boolean };
   mainImage?: File;
+  gallery?: File[];
+  existingGallery?: string[];
+  variants?: CreateProductVariant[];
 }
 
 export interface ProductListParams {

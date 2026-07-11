@@ -66,9 +66,26 @@ export const productService = {
     const form = new FormData();
     if (payload.name) form.append("name", payload.name);
     if (payload.description !== undefined) form.append("description", payload.description);
+    if (payload.categoryId) form.append("categoryId", payload.categoryId);
+    if (payload.price !== undefined) form.append("price", String(payload.price));
     if (payload.status) form.append("status", payload.status);
+    if (payload.toppingCategoryIds && payload.toppingCategoryIds.length > 0)
+      payload.toppingCategoryIds.forEach((tid) => form.append("toppingCategoryIds", tid));
+    if (payload.defaultToppingItemIds && payload.defaultToppingItemIds.length > 0)
+      payload.defaultToppingItemIds.forEach((tid) => form.append("defaultToppingItemIds", tid));
     if (payload.availability) form.append("availability", JSON.stringify(payload.availability));
     if (payload.mainImage) form.append("mainImage", payload.mainImage);
+    if (payload.gallery) payload.gallery.forEach((f) => form.append("gallery", f));
+    if (payload.existingGallery)
+      payload.existingGallery.forEach((url) => form.append("existingGallery", url));
+    if (payload.variants) {
+      payload.variants.forEach((v, i) => {
+        form.append(`variants[${i}][variantCategoryId]`, v.variantCategoryId);
+        form.append(`variants[${i}][variantItemId]`, v.variantItemId);
+        form.append(`variants[${i}][price]`, String(v.price));
+        form.append(`variants[${i}][status]`, v.status);
+      });
+    }
     const res = await apiClient.patch(API.products.update(id), form, {
       headers: { "Content-Type": "multipart/form-data" },
     });
