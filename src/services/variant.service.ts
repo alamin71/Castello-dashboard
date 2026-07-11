@@ -23,17 +23,22 @@ export const variantService = {
   },
 
   createCategory: async (payload: CreateVariantCategoryPayload): Promise<VariantCategory> => {
+    const form = new FormData();
+    form.append("name", payload.name);
     const res = await apiClient.post<ApiResponse<VariantCategory>>(
       API.variants.categories.create,
-      { name: payload.name }
+      form
     );
     return res.data.data;
   },
 
   updateCategory: async (id: string, payload: UpdateVariantCategoryPayload): Promise<VariantCategory> => {
+    const form = new FormData();
+    if (payload.name) form.append("name", payload.name);
+    if (payload.status) form.append("status", payload.status);
     const res = await apiClient.patch<ApiResponse<VariantCategory>>(
       API.variants.categories.update(id),
-      { ...(payload.name ? { name: payload.name } : {}), ...(payload.status ? { status: payload.status } : {}) }
+      form
     );
     return res.data.data;
   },
