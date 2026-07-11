@@ -53,7 +53,7 @@ function CategoryModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-      <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-[500px] mx-4">
+      <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-125 mx-4">
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/10">
           <h2 className="text-lg font-semibold text-white">
             {existing ? "Edit Category" : "Add New Category"}
@@ -131,7 +131,7 @@ function ItemModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-      <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-[500px] mx-4">
+      <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-125 mx-4">
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/10">
           <h2 className="text-lg font-semibold text-white">
             {existing ? "Edit Item" : "Add New Item"}
@@ -161,7 +161,7 @@ function ItemModal({
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="appearance-none w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-colors [color-scheme:dark]"
+                className="appearance-none w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-colors scheme-dark"
               >
                 <option value="">Select variant category</option>
                 {categories.map((c) => (
@@ -320,7 +320,7 @@ export default function VariantsPage() {
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white/20 [color-scheme:dark]"
+                className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white/20 scheme-dark"
               >
                 <option value="">All Category</option>
                 {allCategories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
@@ -332,7 +332,7 @@ export default function VariantsPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as "all" | Status)}
-              className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white/20 [color-scheme:dark]"
+              className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white/20 scheme-dark"
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>

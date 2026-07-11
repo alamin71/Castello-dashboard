@@ -42,16 +42,16 @@ const API = {
 
   toppings: {
     categories: {
-      list:   "/topping-categories",
-      create: "/topping-categories",
-      update: (id: string) => `/topping-categories/${id}`,
-      delete: (id: string) => `/topping-categories/${id}`,
+      list:   "/admin/menu/toppings/categories",
+      create: "/admin/menu/toppings/categories",
+      update: (id: string) => `/admin/menu/toppings/categories/${id}`,
+      delete: (id: string) => `/admin/menu/toppings/categories/${id}`,
     },
     items: {
-      list:   "/topping-items",
-      create: "/topping-items",
-      update: (id: string) => `/topping-items/${id}`,
-      delete: (id: string) => `/topping-items/${id}`,
+      list:   "/admin/menu/toppings/items",
+      create: "/admin/menu/toppings/items",
+      update: (id: string) => `/admin/menu/toppings/items/${id}`,
+      delete: (id: string) => `/admin/menu/toppings/items/${id}`,
     },
   },
 

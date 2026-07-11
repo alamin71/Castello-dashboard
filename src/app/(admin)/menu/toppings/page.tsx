@@ -1,46 +1,19 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
-import { Plus, Search, Pencil, MoreVertical, X, ChevronDown } from "lucide-react";
+import { Plus, Search, Pencil, MoreVertical, X, ChevronDown, Trash2 } from "lucide-react";
+import { useToppingCategories } from "@/hooks/queries/useToppingCategories";
+import { useToppingItems } from "@/hooks/queries/useToppingItems";
+import { useCreateToppingCategory } from "@/hooks/mutations/useCreateToppingCategory";
+import { useUpdateToppingCategory } from "@/hooks/mutations/useUpdateToppingCategory";
+import { useDeleteToppingCategory } from "@/hooks/mutations/useDeleteToppingCategory";
+import { useCreateToppingItem } from "@/hooks/mutations/useCreateToppingItem";
+import { useUpdateToppingItem } from "@/hooks/mutations/useUpdateToppingItem";
+import { useDeleteToppingItem } from "@/hooks/mutations/useDeleteToppingItem";
+import { ToppingCategory, ToppingItem } from "@/types/topping.types";
 
 type Status = "active" | "inactive";
 type Tab = "categories" | "items";
-
-interface ToppingCategory {
-  id: string;
-  name: string;
-  assignedItems: number;
-  status: Status;
-}
-
-interface ToppingItem {
-  id: string;
-  name: string;
-  category: string;
-  pricePerItem: number;
-  status: Status;
-}
-
-const TOPPING_CATEGORIES: ToppingCategory[] = [
-  { id: "TC-34611", name: "Meat", assignedItems: 19, status: "active" },
-  { id: "TC-34611", name: "Vegetables", assignedItems: 13, status: "active" },
-  { id: "TC-34611", name: "Cheeses", assignedItems: 7, status: "inactive" },
-  { id: "TC-34611", name: "Spices & Sauces", assignedItems: 27, status: "active" },
-  { id: "TC-34611", name: "Extra grill", assignedItems: 0, status: "active" },
-];
-
-const TOPPING_ITEMS: ToppingItem[] = [
-  { id: "TI-34611", name: "Tuna", category: "Meat", pricePerItem: 420, status: "active" },
-  { id: "TI-34611", name: "Cheese", category: "Cheeses", pricePerItem: 420, status: "active" },
-  { id: "TI-34611", name: "Cream Cheese", category: "Cheeses", pricePerItem: 420, status: "active" },
-  { id: "TI-34611", name: "Blue Cheese", category: "Cheeses", pricePerItem: 420, status: "active" },
-  { id: "TI-34611", name: "Chicken", category: "Meat", pricePerItem: 420, status: "active" },
-  { id: "TI-34611", name: "Onion", category: "Vegetables", pricePerItem: 420, status: "active" },
-  { id: "TI-34611", name: "Jalapeno", category: "Vegetables", pricePerItem: 420, status: "active" },
-  { id: "TI-34611", name: "Sauce", category: "Spices & Sauces", pricePerItem: 420, status: "active" },
-  { id: "TI-34611", name: "Kebab Meat", category: "Extra Grill", pricePerItem: 420, status: "active" },
-  { id: "TI-34611", name: "Red Onion", category: "Extra Grill", pricePerItem: 420, status: "active" },
-];
 
 function StatusBadge({ status }: { status: Status }) {
   return (
@@ -53,24 +26,49 @@ function StatusBadge({ status }: { status: Status }) {
   );
 }
 
-function AddCategoryModal({ onClose }: { onClose: () => void }) {
+// ── Category Modal ─────────────────────────────────────────────
+function CategoryModal({ existing, onClose }: { existing?: ToppingCategory; onClose: () => void }) {
+  const [name, setName] = useState(existing?.name ?? "");
+  const { mutate: create, isPending: creating } = useCreateToppingCategory();
+  const { mutate: update, isPending: updating } = useUpdateToppingCategory();
+  const isPending = creating || updating;
+
+  const handleSubmit = () => {
+    if (!name.trim()) return;
+    if (existing) {
+      update({ id: existing._id, payload: { name: name.trim() } }, { onSuccess: () => onClose() });
+    } else {
+      create({ name: name.trim() }, { onSuccess: () => onClose() });
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-      <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-[500px] mx-4">
+      <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-125 mx-4">
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/10">
-          <h2 className="text-lg font-semibold text-white">Add New Category</h2>
+          <h2 className="text-lg font-semibold text-white">{existing ? "Edit Category" : "Add New Category"}</h2>
           <button onClick={onClose} className="text-red-400 hover:text-red-300 transition-colors"><X size={20} /></button>
         </div>
-        <div className="px-6 py-5 space-y-5">
+        <div className="px-6 py-5">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-white"><span className="text-red-400">*</span>Toppings Category</label>
-            <input type="text" placeholder="Enter category name" className="w-full bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30" />
+            <label className="text-sm font-medium text-white"><span className="text-red-400">*</span> Toppings Category</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              placeholder="Enter category name"
+              className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors"
+            />
           </div>
         </div>
         <div className="px-6 pb-6 pt-2 border-t border-white/10">
           <div className="flex gap-3 mt-4">
             <button onClick={onClose} className="flex-1 py-3 rounded-xl border border-white/15 text-white text-sm font-medium hover:bg-white/5 transition-colors">Cancel</button>
-            <button className="flex-1 py-3 rounded-xl bg-white text-black text-sm font-medium hover:bg-white/90 transition-colors">Save Category</button>
+            <button onClick={handleSubmit} disabled={isPending || !name.trim()}
+              className="flex-1 py-3 rounded-xl bg-white text-black text-sm font-medium hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              {isPending ? "Saving..." : existing ? "Save Changes" : "Save Category"}
+            </button>
           </div>
         </div>
       </div>
@@ -78,31 +76,60 @@ function AddCategoryModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-function AddItemModal({ onClose }: { onClose: () => void }) {
+// ── Item Modal ─────────────────────────────────────────────────
+function ItemModal({ existing, categories, onClose }: { existing?: ToppingItem; categories: ToppingCategory[]; onClose: () => void }) {
+  const [name, setName] = useState(existing?.name ?? "");
+  const [price, setPrice] = useState(existing?.price?.toString() ?? "");
+  const [categoryId, setCategoryId] = useState(() => {
+    if (!existing) return "";
+    const v = existing.toppingCategoryId;
+    return typeof v === "string" ? v : v?._id ?? "";
+  });
+
+  const { mutate: create, isPending: creating } = useCreateToppingItem();
+  const { mutate: update, isPending: updating } = useUpdateToppingItem();
+  const isPending = creating || updating;
+
+  const handleSubmit = () => {
+    if (!name.trim() || !categoryId || !price) return;
+    if (existing) {
+      const payload: { name?: string; toppingCategoryId?: string; price?: number } = {};
+      if (name.trim() !== existing.name) payload.name = name.trim();
+      if (categoryId !== (typeof existing.toppingCategoryId === "string" ? existing.toppingCategoryId : existing.toppingCategoryId?._id)) payload.toppingCategoryId = categoryId;
+      if (Number(price) !== existing.price) payload.price = Number(price);
+      update({ id: existing._id, payload }, { onSuccess: () => onClose() });
+    } else {
+      create({ name: name.trim(), toppingCategoryId: categoryId, price: Number(price) }, { onSuccess: () => onClose() });
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-      <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-[500px] mx-4">
+      <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-125 mx-4">
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/10">
-          <h2 className="text-lg font-semibold text-white">Add New Item</h2>
+          <h2 className="text-lg font-semibold text-white">{existing ? "Edit Item" : "Add New Item"}</h2>
           <button onClick={onClose} className="text-red-400 hover:text-red-300 transition-colors"><X size={20} /></button>
         </div>
         <div className="px-6 py-5 space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-white"><span className="text-red-400">*</span>Item Name</label>
-              <input type="text" placeholder="Enter item name" className="w-full bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30" />
+              <label className="text-sm font-medium text-white"><span className="text-red-400">*</span> Item Name</label>
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter item name"
+                className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-white"><span className="text-red-400">*</span>Price</label>
-              <input type="number" placeholder="Enter item price" className="w-full bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30" />
+              <label className="text-sm font-medium text-white"><span className="text-red-400">*</span> Price</label>
+              <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Enter price" min={0}
+                className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors" />
             </div>
           </div>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-white"><span className="text-red-400">*</span>Toppings Category</label>
+            <label className="text-sm font-medium text-white"><span className="text-red-400">*</span> Toppings Category</label>
             <div className="relative">
-              <select className="appearance-none w-full bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-3 text-sm text-white/50 outline-none">
+              <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}
+                className="appearance-none w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-colors scheme-dark">
                 <option value="">Select toppings category</option>
-                {TOPPING_CATEGORIES.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
+                {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
               </select>
               <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
             </div>
@@ -111,7 +138,10 @@ function AddItemModal({ onClose }: { onClose: () => void }) {
         <div className="px-6 pb-6 pt-2 border-t border-white/10">
           <div className="flex gap-3 mt-4">
             <button onClick={onClose} className="flex-1 py-3 rounded-xl border border-white/15 text-white text-sm font-medium hover:bg-white/5 transition-colors">Cancel</button>
-            <button className="flex-1 py-3 rounded-xl bg-white text-black text-sm font-medium hover:bg-white/90 transition-colors">Save Item</button>
+            <button onClick={handleSubmit} disabled={isPending || !name.trim() || !categoryId || !price}
+              className="flex-1 py-3 rounded-xl bg-white text-black text-sm font-medium hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              {isPending ? "Saving..." : existing ? "Save Changes" : "Save Item"}
+            </button>
           </div>
         </div>
       </div>
@@ -119,41 +149,93 @@ function AddItemModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+// ── Delete Confirm ─────────────────────────────────────────────
+function DeleteModal({ label, onConfirm, isPending, onClose }: { label: string; onConfirm: () => void; isPending: boolean; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+      <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-md mx-4 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-white">Confirm Delete</h2>
+          <button onClick={onClose} className="text-red-400 hover:text-red-300 transition-colors"><X size={20} /></button>
+        </div>
+        <p className="text-sm text-white/60 mb-6">Are you sure you want to delete <span className="text-white font-medium">{label}</span>? This cannot be undone.</p>
+        <div className="flex gap-3">
+          <button onClick={onClose} className="flex-1 py-3 rounded-xl border border-white/15 text-white text-sm font-medium hover:bg-white/5 transition-colors">Cancel</button>
+          <button onClick={onConfirm} disabled={isPending} className="flex-1 py-3 rounded-xl bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            {isPending ? "Deleting..." : "Delete"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Page ──────────────────────────────────────────────────
 export default function ToppingsPage() {
   const [tab, setTab] = useState<Tab>("categories");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | Status>("all");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [showModal, setShowModal] = useState(false);
-  const [openMenu, setOpenMenu] = useState<number | null>(null);
-  const [categories, setCategories] = useState(TOPPING_CATEGORIES);
-  const [items, setItems] = useState(TOPPING_ITEMS);
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
 
-  const filteredCats = categories.filter((c) => {
-    const matchSearch = c.name.toLowerCase().includes(search.toLowerCase());
-    return matchSearch && (statusFilter === "all" || c.status === statusFilter);
-  });
+  const [showAddCat, setShowAddCat] = useState(false);
+  const [editCat, setEditCat] = useState<ToppingCategory | null>(null);
+  const [deleteCat, setDeleteCat] = useState<ToppingCategory | null>(null);
 
-  const filteredItems = items.filter((i) => {
-    const matchSearch = i.name.toLowerCase().includes(search.toLowerCase());
-    return matchSearch && (statusFilter === "all" || i.status === statusFilter) && (categoryFilter === "all" || i.category === categoryFilter);
-  });
+  const [showAddItem, setShowAddItem] = useState(false);
+  const [editItem, setEditItem] = useState<ToppingItem | null>(null);
+  const [deleteItem, setDeleteItem] = useState<ToppingItem | null>(null);
 
-  const toggleCatStatus = (idx: number) => {
-    setCategories((prev) => prev.map((c, i) => i === idx ? { ...c, status: c.status === "active" ? "inactive" : "active" } : c));
+  const catParams = {
+    ...(search ? { searchTerm: search } : {}),
+    ...(statusFilter !== "all" ? { status: statusFilter } : {}),
+  };
+
+  const itemParams = {
+    ...(search ? { searchTerm: search } : {}),
+    ...(statusFilter !== "all" ? { status: statusFilter } : {}),
+    ...(categoryFilter ? { toppingCategoryId: categoryFilter } : {}),
+  };
+
+  const { data: catData, isLoading: catLoading, isError: catError } = useToppingCategories(catParams);
+  const { data: allCatData } = useToppingCategories({});
+  const { data: itemData, isLoading: itemLoading, isError: itemError } = useToppingItems(itemParams);
+
+  const { mutate: updateCat } = useUpdateToppingCategory();
+  const { mutate: deleteCatMut, isPending: deletingCat } = useDeleteToppingCategory();
+  const { mutate: updateItem } = useUpdateToppingItem();
+  const { mutate: deleteItemMut, isPending: deletingItem } = useDeleteToppingItem();
+
+  const categories = catData ?? [];
+  const allCategories = allCatData ?? [];
+  const items = itemData ?? [];
+
+  const getCategoryName = (item: ToppingItem) => {
+    if (item.toppingCategory?.name) return item.toppingCategory.name;
+    if (typeof item.toppingCategoryId === "object" && item.toppingCategoryId?.name) return item.toppingCategoryId.name;
+    const id = typeof item.toppingCategoryId === "string" ? item.toppingCategoryId : item.toppingCategoryId?._id;
+    return allCategories.find(c => c._id === id)?.name ?? "—";
+  };
+
+  const toggleCatStatus = (cat: ToppingCategory) => {
+    updateCat({ id: cat._id, payload: { status: cat.status === "active" ? "inactive" : "active" } });
     setOpenMenu(null);
   };
 
-  const toggleItemStatus = (idx: number) => {
-    setItems((prev) => prev.map((c, i) => i === idx ? { ...c, status: c.status === "active" ? "inactive" : "active" } : c));
+  const toggleItemStatus = (item: ToppingItem) => {
+    updateItem({ id: item._id, payload: { status: item.status === "active" ? "inactive" : "active" } });
     setOpenMenu(null);
   };
 
   return (
     <div className="p-6 min-h-screen">
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-white">Toppings</h1>
-        <button onClick={() => setShowModal(true)} className="flex items-center gap-2 bg-white text-black px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-white/90 transition-colors">
+        <button
+          onClick={() => tab === "categories" ? setShowAddCat(true) : setShowAddItem(true)}
+          className="flex items-center gap-2 bg-white text-black px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-white/90 transition-colors"
+        >
           <Plus size={16} />
           {tab === "categories" ? "Add New Category" : "Add New Item"}
         </button>
@@ -162,7 +244,7 @@ export default function ToppingsPage() {
       {/* Tabs */}
       <div className="flex gap-2 mb-5">
         {(["categories", "items"] as Tab[]).map((t) => (
-          <button key={t} onClick={() => { setTab(t); setSearch(""); setOpenMenu(null); }}
+          <button key={t} onClick={() => { setTab(t); setSearch(""); setStatusFilter("all"); setOpenMenu(null); }}
             className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-colors ${tab === t ? "bg-white text-black" : "bg-[#1a1a1a] text-white/60 hover:text-white border border-white/10"}`}>
             {t === "categories" ? "Toppings Categories" : "Toppings Items"}
           </button>
@@ -173,23 +255,23 @@ export default function ToppingsPage() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 w-72">
           <Search size={16} className="text-white/30 shrink-0" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search category id, name..."
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name..."
             className="bg-transparent text-sm text-white placeholder-white/30 outline-none w-full" />
         </div>
         <div className="flex items-center gap-2">
           {tab === "items" && (
             <div className="relative">
               <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}
-                className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none cursor-pointer focus:border-white/20 [color-scheme:dark]">
-                <option value="all">All Category</option>
-                {TOPPING_CATEGORIES.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
+                className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white/20 scheme-dark">
+                <option value="">All Category</option>
+                {allCategories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
               </select>
               <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
             </div>
           )}
           <div className="relative">
             <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as "all" | Status)}
-              className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none cursor-pointer focus:border-white/20 [color-scheme:dark]">
+              className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white/20 scheme-dark">
               <option value="all">All Status</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
@@ -206,6 +288,7 @@ export default function ToppingsPage() {
             <tr className="border-b border-white/6">
               {tab === "categories" ? (
                 <>
+                  <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">SL</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Category ID</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Topping Category</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Assigned Items</th>
@@ -214,6 +297,7 @@ export default function ToppingsPage() {
                 </>
               ) : (
                 <>
+                  <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">SL</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Item ID</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Topping Item</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Topping Category</th>
@@ -225,81 +309,95 @@ export default function ToppingsPage() {
             </tr>
           </thead>
           <tbody>
-            {tab === "categories"
-              ? filteredCats.map((cat, idx) => (
-                  <tr key={idx} className="border-b border-white/4 hover:bg-white/2 transition-colors">
-                    <td className="px-5 py-4 text-sm text-white/60">{cat.id}</td>
+            {tab === "categories" ? (
+              catLoading ? (
+                <tr><td colSpan={6} className="px-5 py-12 text-center text-sm text-white/40">Loading...</td></tr>
+              ) : catError ? (
+                <tr><td colSpan={6} className="px-5 py-12 text-center text-sm text-red-400">Failed to load categories.</td></tr>
+              ) : categories.length === 0 ? (
+                <tr><td colSpan={6} className="px-5 py-12 text-center text-sm text-white/40">No categories found.</td></tr>
+              ) : (
+                categories.map((cat, idx) => (
+                  <tr key={cat._id} className="border-b border-white/4 hover:bg-white/2 transition-colors">
+                    <td className="px-5 py-4 text-sm text-white/60">{String(idx + 1).padStart(2, "0")}</td>
+                    <td className="px-5 py-4 text-sm text-white/60">{cat.toppingCategoryId}</td>
                     <td className="px-5 py-4 text-sm text-white font-medium">{cat.name}</td>
-                    <td className="px-5 py-4 text-sm text-white/70">{String(cat.assignedItems).padStart(2, "0")}</td>
+                    <td className="px-5 py-4 text-sm text-white/60">{String(cat.totalItems ?? 0).padStart(2, "0")}</td>
                     <td className="px-5 py-4"><StatusBadge status={cat.status} /></td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-1 relative">
-                        <button className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"><Pencil size={15} /></button>
-                        <button onClick={() => setOpenMenu(openMenu === idx ? null : idx)} className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"><MoreVertical size={15} /></button>
-                        {openMenu === idx && (
-                          <div className="absolute right-0 top-8 z-20 bg-[#232323] border border-white/10 rounded-xl shadow-xl min-w-32.5 py-1">
-                            <button onClick={() => toggleCatStatus(idx)} className={`flex items-center gap-2 w-full px-4 py-2.5 text-sm ${cat.status === "active" ? "text-red-400" : "text-emerald-400"} hover:bg-white/5`}>
+                        <button onClick={() => setEditCat(cat)} className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"><Pencil size={15} /></button>
+                        <button onClick={() => setOpenMenu(openMenu === cat._id ? null : cat._id)} className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"><MoreVertical size={15} /></button>
+                        {openMenu === cat._id && (
+                          <div className="absolute right-0 top-8 z-20 bg-[#232323] border border-white/10 rounded-xl shadow-xl min-w-36 py-1">
+                            <button onClick={() => toggleCatStatus(cat)} className={`flex items-center gap-2 w-full px-4 py-2.5 text-sm ${cat.status === "active" ? "text-red-400" : "text-emerald-400"} hover:bg-white/5 transition-colors`}>
                               <span className={`w-4 h-4 rounded-full border-2 ${cat.status === "active" ? "border-red-400" : "border-emerald-400"}`} />
-                              {cat.status === "active" ? "Inactive" : "Active"}
+                              {cat.status === "active" ? "Set Inactive" : "Set Active"}
                             </button>
-                            <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-400 hover:bg-white/5"><span>ðŸ—‘</span> Delete</button>
+                            <button onClick={() => { setDeleteCat(cat); setOpenMenu(null); }} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-400 hover:bg-white/5 transition-colors">
+                              <Trash2 size={14} /> Delete
+                            </button>
                           </div>
                         )}
                       </div>
                     </td>
                   </tr>
                 ))
-              : filteredItems.map((item, idx) => (
-                  <tr key={idx} className="border-b border-white/4 hover:bg-white/2 transition-colors">
-                    <td className="px-5 py-4 text-sm text-white/60">{item.id}</td>
+              )
+            ) : (
+              itemLoading ? (
+                <tr><td colSpan={7} className="px-5 py-12 text-center text-sm text-white/40">Loading...</td></tr>
+              ) : itemError ? (
+                <tr><td colSpan={7} className="px-5 py-12 text-center text-sm text-red-400">Failed to load items.</td></tr>
+              ) : items.length === 0 ? (
+                <tr><td colSpan={7} className="px-5 py-12 text-center text-sm text-white/40">No items found.</td></tr>
+              ) : (
+                items.map((item, idx) => (
+                  <tr key={item._id} className="border-b border-white/4 hover:bg-white/2 transition-colors">
+                    <td className="px-5 py-4 text-sm text-white/60">{String(idx + 1).padStart(2, "0")}</td>
+                    <td className="px-5 py-4 text-sm text-white/60">{item.toppingItemId}</td>
                     <td className="px-5 py-4 text-sm text-white font-medium">{item.name}</td>
-                    <td className="px-5 py-4 text-sm text-white/70">{item.category}</td>
-                    <td className="px-5 py-4 text-sm text-white/70">{item.pricePerItem}</td>
+                    <td className="px-5 py-4 text-sm text-white/70">{getCategoryName(item)}</td>
+                    <td className="px-5 py-4 text-sm text-white/70">{item.price}</td>
                     <td className="px-5 py-4"><StatusBadge status={item.status} /></td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-1 relative">
-                        <button className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"><Pencil size={15} /></button>
-                        <button onClick={() => setOpenMenu(openMenu === idx ? null : idx)} className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"><MoreVertical size={15} /></button>
-                        {openMenu === idx && (
-                          <div className="absolute right-0 top-8 z-20 bg-[#232323] border border-white/10 rounded-xl shadow-xl min-w-32.5 py-1">
-                            <button onClick={() => toggleItemStatus(idx)} className={`flex items-center gap-2 w-full px-4 py-2.5 text-sm ${item.status === "active" ? "text-red-400" : "text-emerald-400"} hover:bg-white/5`}>
+                        <button onClick={() => setEditItem(item)} className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"><Pencil size={15} /></button>
+                        <button onClick={() => setOpenMenu(openMenu === item._id ? null : item._id)} className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"><MoreVertical size={15} /></button>
+                        {openMenu === item._id && (
+                          <div className="absolute right-0 top-8 z-20 bg-[#232323] border border-white/10 rounded-xl shadow-xl min-w-36 py-1">
+                            <button onClick={() => toggleItemStatus(item)} className={`flex items-center gap-2 w-full px-4 py-2.5 text-sm ${item.status === "active" ? "text-red-400" : "text-emerald-400"} hover:bg-white/5 transition-colors`}>
                               <span className={`w-4 h-4 rounded-full border-2 ${item.status === "active" ? "border-red-400" : "border-emerald-400"}`} />
-                              {item.status === "active" ? "Inactive" : "Active"}
+                              {item.status === "active" ? "Set Inactive" : "Set Active"}
                             </button>
-                            <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-400 hover:bg-white/5"><span>ðŸ—‘</span> Delete</button>
+                            <button onClick={() => { setDeleteItem(item); setOpenMenu(null); }} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-400 hover:bg-white/5 transition-colors">
+                              <Trash2 size={14} /> Delete
+                            </button>
                           </div>
                         )}
                       </div>
                     </td>
                   </tr>
-                ))}
+                ))
+              )
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-between mt-5">
-        <div className="flex items-center gap-2 text-sm text-white/40">
-          <span>Showing per page</span>
-          <div className="relative">
-            <select className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-1.5 pr-7 text-sm text-white outline-none">
-              <option>20</option><option>50</option>
-            </select>
-            <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
-          </div>
-        </div>
-        <div className="flex items-center gap-1">
-          {[1, 2, 3, 4, 5].map((p) => (
-            <button key={p} className={`w-8 h-8 rounded-lg text-sm transition-colors ${p === 1 ? "bg-white text-black font-medium" : "text-white/50 hover:text-white hover:bg-white/5"}`}>
-              {String(p).padStart(2, "0")}
-            </button>
-          ))}
-          <span className="text-white/30 px-1">...</span>
-          <button className="w-8 h-8 rounded-lg text-sm text-white/50 hover:text-white hover:bg-white/5">17</button>
-        </div>
-      </div>
+      {/* Modals */}
+      {showAddCat && <CategoryModal onClose={() => setShowAddCat(false)} />}
+      {editCat && <CategoryModal existing={editCat} onClose={() => setEditCat(null)} />}
+      {deleteCat && <DeleteModal label={deleteCat.name} isPending={deletingCat}
+        onConfirm={() => deleteCatMut(deleteCat._id, { onSuccess: () => setDeleteCat(null) })}
+        onClose={() => setDeleteCat(null)} />}
 
-      {showModal && (tab === "categories" ? <AddCategoryModal onClose={() => setShowModal(false)} /> : <AddItemModal onClose={() => setShowModal(false)} />)}
+      {showAddItem && <ItemModal categories={allCategories} onClose={() => setShowAddItem(false)} />}
+      {editItem && <ItemModal existing={editItem} categories={allCategories} onClose={() => setEditItem(null)} />}
+      {deleteItem && <DeleteModal label={deleteItem.name} isPending={deletingItem}
+        onConfirm={() => deleteItemMut(deleteItem._id, { onSuccess: () => setDeleteItem(null) })}
+        onClose={() => setDeleteItem(null)} />}
+
       {openMenu !== null && <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(null)} />}
     </div>
   );
