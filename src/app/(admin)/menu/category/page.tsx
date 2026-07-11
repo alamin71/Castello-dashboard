@@ -415,17 +415,17 @@ export default function CategoryPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-[#1a1a1a] rounded-2xl overflow-hidden border border-white/6">
+      <div className="bg-[#1a1a1a] rounded-2xl overflow-visible border border-white/6">
         <table className="w-full">
           <thead>
             <tr className="border-b border-white/6">
-              <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">SL</th>
+              <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider rounded-tl-2xl">SL</th>
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Category ID</th>
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Photo</th>
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Category Name</th>
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Assigned Products</th>
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Status</th>
-              <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Action</th>
+              <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider rounded-tr-2xl">Action</th>
             </tr>
           </thead>
           <tbody>

@@ -344,27 +344,27 @@ export default function VariantsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-[#1a1a1a] rounded-2xl overflow-hidden border border-white/6">
+      <div className="bg-[#1a1a1a] rounded-2xl overflow-visible border border-white/6">
         <table className="w-full">
           <thead>
             <tr className="border-b border-white/6">
               {tab === "categories" ? (
                 <>
-                  <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">SL</th>
+                  <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider rounded-tl-2xl">SL</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Category ID</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Variant Category</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Assigned Items</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Status</th>
-                  <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Action</th>
+                  <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider rounded-tr-2xl">Action</th>
                 </>
               ) : (
                 <>
-                  <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">SL</th>
+                  <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider rounded-tl-2xl">SL</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Item ID</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Variant Item</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Variant Category</th>
                   <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Status</th>
-                  <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Action</th>
+                  <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider rounded-tr-2xl">Action</th>
                 </>
               )}
             </tr>
