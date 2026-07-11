@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Plus, Search, Pencil, Trash2, ChevronDown, MoreVertical } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, ChevronDown, MoreVertical, Ban, CircleCheck } from "lucide-react";
 import { useProducts } from "@/hooks/queries/useProducts";
 import { useUpdateProduct } from "@/hooks/mutations/useUpdateProduct";
 import { useDeleteProduct } from "@/hooks/mutations/useDeleteProduct";
@@ -216,11 +216,12 @@ export default function ProductsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-[#1a1a1a] rounded-2xl overflow-hidden border border-white/6">
-        <table className="w-full">
+      <div className="bg-[#1a1a1a] rounded-2xl border border-white/6 overflow-visible">
+        <table className="w-full border-collapse">
           <thead>
             <tr className="border-b border-white/6">
-              <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">SL</th>
+
+              <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider rounded-tl-2xl">SL</th>
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Product ID</th>
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Photo</th>
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Product Name</th>
@@ -228,7 +229,7 @@ export default function ProductsPage() {
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Type</th>
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Price (Kr.)</th>
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Status</th>
-              <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Action</th>
+              <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider rounded-tr-2xl">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -285,13 +286,7 @@ export default function ProductsPage() {
                     <CategoryName categoryId={product.categoryId} />
                   </td>
                   <td className="px-5 py-4">
-                    <span
-                      className={`text-xs px-2 py-0.5 rounded-full border text-white ${
-                        product.type === "single"
-                          ? "border-blue-500/40"
-                          : "border-purple-500/40"
-                      }`}
-                    >
+                    <span className="text-xs px-2 py-0.5 rounded-full border border-white/20 text-white">
                       {product.type === "single" ? "Single" : "Variant"}
                     </span>
                   </td>
@@ -316,25 +311,26 @@ export default function ProductsPage() {
                         <MoreVertical size={15} />
                       </button>
                       {openMenu === product._id && (
-                        <div className="absolute right-0 top-8 z-20 bg-[#232323] border border-white/10 rounded-xl shadow-xl min-w-36 py-1">
+                        <div className="absolute right-0 top-9 z-50 bg-[#1e1e1e] border border-white/10 rounded-2xl shadow-2xl w-44 overflow-hidden">
                           <button
                             onClick={() => handleStatusToggle(product)}
-                            className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-white/70 hover:bg-white/5 transition-colors"
+                            className={`flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors ${
+                              product.status === "active"
+                                ? "text-red-400 hover:bg-red-400/8"
+                                : "text-emerald-400 hover:bg-emerald-400/8"
+                            }`}
                           >
-                            <span
-                              className={`w-3 h-3 rounded-full border-2 ${
-                                product.status === "active"
-                                  ? "border-red-400"
-                                  : "border-emerald-400"
-                              }`}
-                            />
-                            {product.status === "active" ? "Set Inactive" : "Set Active"}
+                            {product.status === "active"
+                              ? <Ban size={16} />
+                              : <CircleCheck size={16} />}
+                            {product.status === "active" ? "Inactive" : "Active"}
                           </button>
+                          <div className="mx-4 h-px bg-white/8" />
                           <button
                             onClick={() => { setDeleteTarget(product); setOpenMenu(null); }}
-                            className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-400 hover:bg-white/5 transition-colors"
+                            className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-red-400 hover:bg-red-400/8 transition-colors"
                           >
-                            <Trash2 size={13} /> Delete
+                            <Trash2 size={16} /> Delete
                           </button>
                         </div>
                       )}

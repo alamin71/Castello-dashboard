@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {
-  Plus, Search, Pencil, MoreVertical, X, ChevronDown, Trash2,
+  Plus, Search, Pencil, MoreVertical, X, ChevronDown, Trash2, Ban, CircleCheck,
 } from "lucide-react";
 import { useVariantCategories } from "@/hooks/queries/useVariantCategories";
 import { useVariantItems } from "@/hooks/queries/useVariantItems";
@@ -396,19 +396,20 @@ export default function VariantsPage() {
                           <MoreVertical size={15} />
                         </button>
                         {openMenu === cat._id && (
-                          <div className="absolute right-0 top-8 z-20 bg-[#232323] border border-white/10 rounded-xl shadow-xl min-w-36 py-1">
+                          <div className="absolute right-0 top-9 z-50 bg-[#1e1e1e] border border-white/10 rounded-2xl shadow-2xl w-44 overflow-hidden">
                             <button
                               onClick={() => toggleCatStatus(cat)}
-                              className={`flex items-center gap-2 w-full px-4 py-2.5 text-sm ${cat.status === "active" ? "text-red-400" : "text-emerald-400"} hover:bg-white/5 transition-colors`}
+                              className={`flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors ${cat.status === "active" ? "text-red-400 hover:bg-red-400/8" : "text-emerald-400 hover:bg-emerald-400/8"}`}
                             >
-                              <span className={`w-4 h-4 rounded-full border-2 ${cat.status === "active" ? "border-red-400" : "border-emerald-400"}`} />
-                              {cat.status === "active" ? "Set Inactive" : "Set Active"}
+                              {cat.status === "active" ? <Ban size={16} /> : <CircleCheck size={16} />}
+                              {cat.status === "active" ? "Inactive" : "Active"}
                             </button>
+                            <div className="mx-4 h-px bg-white/8" />
                             <button
                               onClick={() => { setDeleteCat(cat); setOpenMenu(null); }}
-                              className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-400 hover:bg-white/5 transition-colors"
+                              className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-red-400 hover:bg-red-400/8 transition-colors"
                             >
-                              <Trash2 size={14} /> Delete
+                              <Trash2 size={16} /> Delete
                             </button>
                           </div>
                         )}
@@ -448,19 +449,20 @@ export default function VariantsPage() {
                           <MoreVertical size={15} />
                         </button>
                         {openMenu === item._id && (
-                          <div className="absolute right-0 top-8 z-20 bg-[#232323] border border-white/10 rounded-xl shadow-xl min-w-36 py-1">
+                          <div className="absolute right-0 top-9 z-50 bg-[#1e1e1e] border border-white/10 rounded-2xl shadow-2xl w-44 overflow-hidden">
                             <button
                               onClick={() => toggleItemStatus(item)}
-                              className={`flex items-center gap-2 w-full px-4 py-2.5 text-sm ${item.status === "active" ? "text-red-400" : "text-emerald-400"} hover:bg-white/5 transition-colors`}
+                              className={`flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors ${item.status === "active" ? "text-red-400 hover:bg-red-400/8" : "text-emerald-400 hover:bg-emerald-400/8"}`}
                             >
-                              <span className={`w-4 h-4 rounded-full border-2 ${item.status === "active" ? "border-red-400" : "border-emerald-400"}`} />
-                              {item.status === "active" ? "Set Inactive" : "Set Active"}
+                              {item.status === "active" ? <Ban size={16} /> : <CircleCheck size={16} />}
+                              {item.status === "active" ? "Inactive" : "Active"}
                             </button>
+                            <div className="mx-4 h-px bg-white/8" />
                             <button
                               onClick={() => { setDeleteItem(item); setOpenMenu(null); }}
-                              className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-400 hover:bg-white/5 transition-colors"
+                              className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-red-400 hover:bg-red-400/8 transition-colors"
                             >
-                              <Trash2 size={14} /> Delete
+                              <Trash2 size={16} /> Delete
                             </button>
                           </div>
                         )}
