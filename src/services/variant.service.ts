@@ -23,26 +23,17 @@ export const variantService = {
   },
 
   createCategory: async (payload: CreateVariantCategoryPayload): Promise<VariantCategory> => {
-    const form = new FormData();
-    form.append("name", payload.name);
-    if (payload.image) form.append("image", payload.image);
     const res = await apiClient.post<ApiResponse<VariantCategory>>(
       API.variants.categories.create,
-      form,
-      { headers: { "Content-Type": "multipart/form-data" } }
+      { name: payload.name }
     );
     return res.data.data;
   },
 
   updateCategory: async (id: string, payload: UpdateVariantCategoryPayload): Promise<VariantCategory> => {
-    const form = new FormData();
-    if (payload.name)   form.append("name", payload.name);
-    if (payload.status) form.append("status", payload.status);
-    if (payload.image)  form.append("image", payload.image);
     const res = await apiClient.patch<ApiResponse<VariantCategory>>(
       API.variants.categories.update(id),
-      form,
-      { headers: { "Content-Type": "multipart/form-data" } }
+      { ...(payload.name ? { name: payload.name } : {}), ...(payload.status ? { status: payload.status } : {}) }
     );
     return res.data.data;
   },
@@ -61,17 +52,26 @@ export const variantService = {
   },
 
   createItem: async (payload: CreateVariantItemPayload): Promise<VariantItem> => {
+    const form = new FormData();
+    form.append("name", payload.name);
+    form.append("variantCategoryId", payload.variantCategoryId);
     const res = await apiClient.post<ApiResponse<VariantItem>>(
       API.variants.items.create,
-      payload
+      form,
+      { headers: { "Content-Type": "multipart/form-data" } }
     );
     return res.data.data;
   },
 
   updateItem: async (id: string, payload: UpdateVariantItemPayload): Promise<VariantItem> => {
+    const form = new FormData();
+    if (payload.name) form.append("name", payload.name);
+    if (payload.status) form.append("status", payload.status);
+    if (payload.variantCategoryId) form.append("variantCategoryId", payload.variantCategoryId);
     const res = await apiClient.patch<ApiResponse<VariantItem>>(
       API.variants.items.update(id),
-      payload
+      form,
+      { headers: { "Content-Type": "multipart/form-data" } }
     );
     return res.data.data;
   },
