@@ -56,10 +56,10 @@ const API = {
   },
 
   products: {
-    list:   "/products",
-    create: "/products",
-    update: (id: string) => `/products/${id}`,
-    delete: (id: string) => `/products/${id}`,
+    list:   "/admin/menu/products",
+    create: "/admin/menu/products",
+    update: (id: string) => `/admin/menu/products/${id}`,
+    delete: (id: string) => `/admin/menu/products/${id}`,
   },
 
   offers: {
