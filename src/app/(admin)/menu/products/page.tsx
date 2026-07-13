@@ -139,7 +139,7 @@ export default function ProductsPage() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top?: number; bottom?: number; right: number } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ProductItem | null>(null);
 
   const params = {
@@ -334,7 +334,12 @@ export default function ProductsPage() {
                             setOpenMenu(null);
                           } else {
                             const rect = e.currentTarget.getBoundingClientRect();
-                            setMenuPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                            const spaceBelow = window.innerHeight - rect.bottom;
+                            setMenuPosition(
+                              spaceBelow < 96
+                                ? { bottom: window.innerHeight - rect.top + 4, right: window.innerWidth - rect.right }
+                                : { top: rect.bottom + 4, right: window.innerWidth - rect.right }
+                            );
                             setOpenMenu(product._id);
                           }
                         }}
@@ -344,7 +349,7 @@ export default function ProductsPage() {
                       </button>
                       {openMenu === product._id && menuPosition && (
                         <div
-                          style={{ top: menuPosition.top, right: menuPosition.right }}
+                          style={{ top: menuPosition.top, bottom: menuPosition.bottom, right: menuPosition.right }}
                           className="fixed z-9999 bg-[#1e1e1e] border border-white/10 rounded-2xl shadow-2xl w-44 overflow-hidden"
                         >
                           <button

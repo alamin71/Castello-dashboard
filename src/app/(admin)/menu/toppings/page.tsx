@@ -208,7 +208,7 @@ export default function ToppingsPage() {
   const [statusFilter, setStatusFilter] = useState<"all" | Status>("all");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top?: number; bottom?: number; right: number } | null>(null);
 
   const [catPage, setCatPage] = useState(1);
   const [catLimit, setCatLimit] = useState(10);
@@ -281,7 +281,12 @@ export default function ToppingsPage() {
   const openMenuAt = (id: string, e: React.MouseEvent<HTMLButtonElement>) => {
     if (openMenu === id) { setOpenMenu(null); return; }
     const rect = e.currentTarget.getBoundingClientRect();
-    setMenuPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+    const spaceBelow = window.innerHeight - rect.bottom;
+    setMenuPosition(
+      spaceBelow < 96
+        ? { bottom: window.innerHeight - rect.top + 4, right: window.innerWidth - rect.right }
+        : { top: rect.bottom + 4, right: window.innerWidth - rect.right }
+    );
     setOpenMenu(id);
   };
 
@@ -388,7 +393,7 @@ export default function ToppingsPage() {
                           <button onClick={() => setEditCat(cat)} className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"><Pencil size={15} /></button>
                           <button onClick={(e) => openMenuAt(cat._id, e)} className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"><MoreVertical size={15} /></button>
                           {openMenu === cat._id && menuPosition && (
-                            <div style={{ top: menuPosition.top, right: menuPosition.right }} className="fixed z-9999 bg-[#1e1e1e] border border-white/10 rounded-2xl shadow-2xl w-44 overflow-hidden">
+                            <div style={{ top: menuPosition.top, bottom: menuPosition.bottom, right: menuPosition.right }} className="fixed z-9999 bg-[#1e1e1e] border border-white/10 rounded-2xl shadow-2xl w-44 overflow-hidden">
                               <button onClick={() => toggleCatStatus(cat)} className={`flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors ${cat.status === "active" ? "text-red-400 hover:bg-red-400/8" : "text-emerald-400 hover:bg-emerald-400/8"}`}>
                                 {cat.status === "active" ? <Ban size={16} /> : <CircleCheck size={16} />}
                                 {cat.status === "active" ? "Inactive" : "Active"}
@@ -425,7 +430,7 @@ export default function ToppingsPage() {
                           <button onClick={() => setEditItem(item)} className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"><Pencil size={15} /></button>
                           <button onClick={(e) => openMenuAt(item._id, e)} className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"><MoreVertical size={15} /></button>
                           {openMenu === item._id && menuPosition && (
-                            <div style={{ top: menuPosition.top, right: menuPosition.right }} className="fixed z-9999 bg-[#1e1e1e] border border-white/10 rounded-2xl shadow-2xl w-44 overflow-hidden">
+                            <div style={{ top: menuPosition.top, bottom: menuPosition.bottom, right: menuPosition.right }} className="fixed z-9999 bg-[#1e1e1e] border border-white/10 rounded-2xl shadow-2xl w-44 overflow-hidden">
                               <button onClick={() => toggleItemStatus(item)} className={`flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors ${item.status === "active" ? "text-red-400 hover:bg-red-400/8" : "text-emerald-400 hover:bg-emerald-400/8"}`}>
                                 {item.status === "active" ? <Ban size={16} /> : <CircleCheck size={16} />}
                                 {item.status === "active" ? "Inactive" : "Active"}

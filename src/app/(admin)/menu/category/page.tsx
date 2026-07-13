@@ -313,7 +313,7 @@ export default function CategoryPage() {
   const [editCategory, setEditCategory] = useState<CategoryItem | null>(null);
   const [deleteCategory, setDeleteCategory] = useState<CategoryItem | null>(null);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top?: number; bottom?: number; right: number } | null>(null);
 
   // drag-and-drop state
   const [localOrder, setLocalOrder] = useState<CategoryItem[] | null>(null);
@@ -508,7 +508,12 @@ export default function CategoryPage() {
                             setOpenMenu(null);
                           } else {
                             const rect = e.currentTarget.getBoundingClientRect();
-                            setMenuPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                            const spaceBelow = window.innerHeight - rect.bottom;
+                            setMenuPosition(
+                              spaceBelow < 96
+                                ? { bottom: window.innerHeight - rect.top + 4, right: window.innerWidth - rect.right }
+                                : { top: rect.bottom + 4, right: window.innerWidth - rect.right }
+                            );
                             setOpenMenu(cat._id);
                           }
                         }}
@@ -525,7 +530,7 @@ export default function CategoryPage() {
                       </button>
                       {openMenu === cat._id && menuPosition && (
                         <div
-                          style={{ top: menuPosition.top, right: menuPosition.right }}
+                          style={{ top: menuPosition.top, bottom: menuPosition.bottom, right: menuPosition.right }}
                           className="fixed z-9999 bg-[#1e1e1e] border border-white/10 rounded-2xl shadow-2xl w-44 overflow-hidden"
                         >
                           <button
