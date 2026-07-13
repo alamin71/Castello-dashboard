@@ -54,3 +54,20 @@ export interface VariantListParams {
 export interface VariantItemListParams extends VariantListParams {
   variantCategoryId?: string;
 }
+
+export interface VariantListMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPage: number;
+}
+
+export interface VariantCategoryListResponse {
+  result: VariantCategory[];
+  meta: VariantListMeta;
+}
+
+export interface VariantItemListResponse {
+  result: VariantItem[];
+  meta: VariantListMeta;
+}

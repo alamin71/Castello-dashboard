@@ -54,3 +54,20 @@ export interface ToppingListParams {
 export interface ToppingItemListParams extends ToppingListParams {
   toppingCategoryId?: string;
 }
+
+export interface ToppingListMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPage: number;
+}
+
+export interface ToppingCategoryListResponse {
+  result: ToppingCategory[];
+  meta: ToppingListMeta;
+}
+
+export interface ToppingItemListResponse {
+  result: ToppingItem[];
+  meta: ToppingListMeta;
+}

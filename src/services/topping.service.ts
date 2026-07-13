@@ -9,16 +9,18 @@ import {
   UpdateToppingItemPayload,
   ToppingListParams,
   ToppingItemListParams,
+  ToppingCategoryListResponse,
+  ToppingItemListResponse,
 } from "@/types/topping.types";
 
 export const toppingService = {
   // ── Categories ──────────────────────────────────────────────
-  listCategories: async (params: ToppingListParams): Promise<ToppingCategory[]> => {
+  listCategories: async (params: ToppingListParams): Promise<ToppingCategoryListResponse> => {
     const res = await apiClient.get(API.toppings.categories.list, { params });
     const data = res.data?.data;
-    if (Array.isArray(data)) return data;
-    if (data?.result && Array.isArray(data.result)) return data.result;
-    return [];
+    if (data?.result && Array.isArray(data.result)) return data;
+    if (Array.isArray(data)) return { result: data, meta: { page: 1, limit: data.length, total: data.length, totalPage: 1 } };
+    return { result: [], meta: { page: 1, limit: 10, total: 0, totalPage: 1 } };
   },
 
   createCategory: async (payload: CreateToppingCategoryPayload): Promise<ToppingCategory> => {
@@ -41,12 +43,12 @@ export const toppingService = {
   },
 
   // ── Items ────────────────────────────────────────────────────
-  listItems: async (params: ToppingItemListParams): Promise<ToppingItem[]> => {
+  listItems: async (params: ToppingItemListParams): Promise<ToppingItemListResponse> => {
     const res = await apiClient.get(API.toppings.items.list, { params });
     const data = res.data?.data;
-    if (Array.isArray(data)) return data;
-    if (data?.result && Array.isArray(data.result)) return data.result;
-    return [];
+    if (data?.result && Array.isArray(data.result)) return data;
+    if (Array.isArray(data)) return { result: data, meta: { page: 1, limit: data.length, total: data.length, totalPage: 1 } };
+    return { result: [], meta: { page: 1, limit: 10, total: 0, totalPage: 1 } };
   },
 
   createItem: async (payload: CreateToppingItemPayload): Promise<ToppingItem> => {

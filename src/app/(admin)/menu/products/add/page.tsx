@@ -57,9 +57,10 @@ function VariantItemSelect({
   value: string;
   onChange: (v: string) => void;
 }) {
-  const { data: items = [] } = useVariantItems(
+  const { data: variantItemsData } = useVariantItems(
     variantCategoryId ? { variantCategoryId } : {}
   );
+  const items = variantItemsData?.result ?? [];
   return (
     <div className="relative flex-1">
       <select
@@ -90,7 +91,8 @@ function ToppingItemsTab({
   selectedItems: Set<string>;
   onToggle: (id: string) => void;
 }) {
-  const { data: items = [], isLoading } = useToppingItems({ toppingCategoryId: category._id });
+  const { data: toppingItemsData, isLoading } = useToppingItems({ toppingCategoryId: category._id });
+  const items = toppingItemsData?.result ?? [];
 
   if (isLoading)
     return <p className="text-sm text-white/30 py-4 text-center">Loading…</p>;
@@ -129,7 +131,8 @@ function ToppingsModal({
   onSave: (sel: ToppingSelection) => void;
   initial: ToppingSelection;
 }) {
-  const { data: allCategories = [], isLoading } = useToppingCategories({});
+  const { data: toppingCatData, isLoading } = useToppingCategories({});
+  const allCategories = toppingCatData?.result ?? [];
   const [step, setStep] = useState<"categories" | "items">("categories");
   const [selectedCatIds, setSelectedCatIds] = useState<Set<string>>(
     new Set(initial.toppingCategoryIds)
@@ -327,7 +330,8 @@ export default function AddProductPage() {
   // API hooks
   const { data: categoriesData } = useCategories({});
   const categories = categoriesData?.result ?? [];
-  const { data: variantCategories = [] } = useVariantCategories({});
+  const { data: variantCategoriesData } = useVariantCategories({});
+  const variantCategories = variantCategoriesData?.result ?? [];
   const { mutate: createProduct, isPending } = useCreateProduct();
 
   const ordinalSuffix = (n: number) => {

@@ -10,16 +10,18 @@ import {
   UpdateVariantItemPayload,
   VariantListParams,
   VariantItemListParams,
+  VariantCategoryListResponse,
+  VariantItemListResponse,
 } from "@/types/variant.types";
 
 export const variantService = {
   // ── Categories ──────────────────────────────────────────────
-  listCategories: async (params: VariantListParams): Promise<VariantCategory[]> => {
+  listCategories: async (params: VariantListParams): Promise<VariantCategoryListResponse> => {
     const res = await apiClient.get(API.variants.categories.list, { params });
     const data = res.data?.data;
-    if (Array.isArray(data)) return data;
-    if (data?.result && Array.isArray(data.result)) return data.result;
-    return [];
+    if (data?.result && Array.isArray(data.result)) return data;
+    if (Array.isArray(data)) return { result: data, meta: { page: 1, limit: data.length, total: data.length, totalPage: 1 } };
+    return { result: [], meta: { page: 1, limit: 10, total: 0, totalPage: 1 } };
   },
 
   createCategory: async (payload: CreateVariantCategoryPayload): Promise<VariantCategory> => {
@@ -48,12 +50,12 @@ export const variantService = {
   },
 
   // ── Items ────────────────────────────────────────────────────
-  listItems: async (params: VariantItemListParams): Promise<VariantItem[]> => {
+  listItems: async (params: VariantItemListParams): Promise<VariantItemListResponse> => {
     const res = await apiClient.get(API.variants.items.list, { params });
     const data = res.data?.data;
-    if (Array.isArray(data)) return data;
-    if (data?.result && Array.isArray(data.result)) return data.result;
-    return [];
+    if (data?.result && Array.isArray(data.result)) return data;
+    if (Array.isArray(data)) return { result: data, meta: { page: 1, limit: data.length, total: data.length, totalPage: 1 } };
+    return { result: [], meta: { page: 1, limit: 10, total: 0, totalPage: 1 } };
   },
 
   createItem: async (payload: CreateVariantItemPayload): Promise<VariantItem> => {
