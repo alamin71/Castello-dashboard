@@ -263,7 +263,8 @@ export default function EditProductPage() {
 
   const { data: product, isLoading } = useProduct(id);
   const { mutate: updateProduct, isPending } = useUpdateProduct();
-  const { data: categories = [] } = useCategories({});
+  const { data: categoriesData } = useCategories({});
+  const categories = categoriesData?.result ?? [];
   const { data: variantCategories = [] } = useVariantCategories({});
 
   // Form state

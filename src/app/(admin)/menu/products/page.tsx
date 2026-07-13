@@ -158,7 +158,7 @@ export default function ProductsPage() {
 
   const products = data?.result ?? [];
   const meta = data?.meta;
-  const categories = catData ?? [];
+  const categories = catData?.result ?? [];
 
   const handleStatusToggle = (product: ProductItem) => {
     updateProduct({

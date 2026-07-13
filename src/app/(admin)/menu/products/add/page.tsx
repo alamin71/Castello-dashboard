@@ -325,7 +325,8 @@ export default function AddProductPage() {
   const galleryRef = useRef<HTMLInputElement>(null);
 
   // API hooks
-  const { data: categories = [] } = useCategories({});
+  const { data: categoriesData } = useCategories({});
+  const categories = categoriesData?.result ?? [];
   const { data: variantCategories = [] } = useVariantCategories({});
   const { mutate: createProduct, isPending } = useCreateProduct();
 
