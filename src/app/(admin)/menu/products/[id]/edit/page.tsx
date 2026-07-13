@@ -583,7 +583,7 @@ export default function EditProductPage() {
                   <span className="text-red-400">*</span> Price (Kr.)
                 </label>
                 <input
-                  type="number"
+                  type="text" inputMode="numeric"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   placeholder="Enter product price"
@@ -622,7 +622,7 @@ export default function EditProductPage() {
                       />
 
                       <input
-                        type="number"
+                        type="text" inputMode="numeric"
                         placeholder="Price"
                         value={v.price}
                         onChange={(e) => updateVariant(idx, "price", e.target.value)}
