@@ -305,7 +305,7 @@ export default function VariantsPage() {
 
       {/* Filters */}
       <div className="shrink-0 flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2 bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 w-72">
+        <div className="flex items-center gap-2 bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 w-72 focus-within:border-white transition-colors">
           <Search size={16} className="text-white/30 shrink-0" />
           <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder="Search by name..."
