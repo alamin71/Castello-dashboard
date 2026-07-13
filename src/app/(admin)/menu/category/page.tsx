@@ -510,7 +510,7 @@ export default function CategoryPage() {
                             const rect = e.currentTarget.getBoundingClientRect();
                             const spaceBelow = window.innerHeight - rect.bottom;
                             setMenuPosition(
-                              spaceBelow < 96
+                              spaceBelow < 160
                                 ? { bottom: window.innerHeight - rect.top + 4, right: window.innerWidth - rect.right }
                                 : { top: rect.bottom + 4, right: window.innerWidth - rect.right }
                             );
