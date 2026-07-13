@@ -76,8 +76,6 @@ export const productService = {
     if (payload.availability) form.append("availability", JSON.stringify(payload.availability));
     if (payload.mainImage) form.append("mainImage", payload.mainImage);
     if (payload.gallery) payload.gallery.forEach((f) => form.append("gallery", f));
-    if (payload.existingGallery)
-      payload.existingGallery.forEach((url) => form.append("existingGallery", url));
     if (payload.variants) {
       payload.variants.forEach((v, i) => {
         form.append(`variants[${i}][variantCategoryId]`, v.variantCategoryId);

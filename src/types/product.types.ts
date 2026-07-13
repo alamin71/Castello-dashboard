@@ -57,7 +57,6 @@ export interface UpdateProductPayload {
   availability?: { website: boolean; pos: boolean; kiosk: boolean };
   mainImage?: File;
   gallery?: File[];
-  existingGallery?: string[];
   variants?: CreateProductVariant[];
 }
 

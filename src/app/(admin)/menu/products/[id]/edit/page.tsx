@@ -421,7 +421,6 @@ export default function EditProductPage() {
           availability,
           ...(newMainImage && { mainImage: newMainImage }),
           gallery: newGallery.length > 0 ? newGallery : undefined,
-          existingGallery,
           variants:
             product?.type === "variant"
               ? variants.map((v) => ({
