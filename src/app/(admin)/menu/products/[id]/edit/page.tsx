@@ -70,7 +70,7 @@ function VariantItemSelect({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={!variantCategoryId}
-        className="appearance-none w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none cursor-pointer focus:border-white/20 scheme-dark disabled:opacity-40"
+        className="appearance-none w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none cursor-pointer focus:border-white scheme-dark disabled:opacity-40"
       >
         <option value="">Select Item</option>
         {items.map((it) => (
@@ -495,7 +495,7 @@ export default function EditProductPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter product name"
-                className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors"
+                className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors"
               />
             </div>
 
@@ -507,7 +507,7 @@ export default function EditProductPage() {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Write product description"
                 rows={4}
-                className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors resize-none"
+                className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors resize-none"
               />
             </div>
 
@@ -521,7 +521,7 @@ export default function EditProductPage() {
                   <select
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
-                    className="appearance-none w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none cursor-pointer focus:border-white/20 scheme-dark"
+                    className="appearance-none w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none cursor-pointer focus:border-white scheme-dark"
                   >
                     <option value="">Select a category</option>
                     {categories.map((c) => (
@@ -587,7 +587,7 @@ export default function EditProductPage() {
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   placeholder="Enter product price"
-                  className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors"
+                  className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors"
                 />
               </div>
             )}
@@ -603,7 +603,7 @@ export default function EditProductPage() {
                         <select
                           value={v.variantCategoryId}
                           onChange={(e) => updateVariant(idx, "variantCategoryId", e.target.value)}
-                          className="appearance-none w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none cursor-pointer focus:border-white/20 scheme-dark"
+                          className="appearance-none w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none cursor-pointer focus:border-white scheme-dark"
                         >
                           <option value="">Select Category</option>
                           {variantCategories.map((c) => (
@@ -626,7 +626,7 @@ export default function EditProductPage() {
                         placeholder="Price"
                         value={v.price}
                         onChange={(e) => updateVariant(idx, "price", e.target.value)}
-                        className="flex-1 bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30"
+                        className="flex-1 bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white"
                       />
 
                       <button

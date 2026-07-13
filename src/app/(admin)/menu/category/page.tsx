@@ -86,7 +86,7 @@ function AddCategoryModal({ onClose }: { onClose: () => void }) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter category name"
-              className="w-full bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors"
+              className="w-full bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors"
             />
           </div>
           <div className="space-y-1.5">
@@ -186,7 +186,7 @@ function EditCategoryModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter category name"
-              className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors"
+              className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors"
             />
           </div>
           <div className="space-y-1.5">
@@ -404,7 +404,7 @@ export default function CategoryPage() {
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value as "all" | Status); setPage(1); }}
-            className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white/20 scheme-dark"
+            className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white scheme-dark"
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>

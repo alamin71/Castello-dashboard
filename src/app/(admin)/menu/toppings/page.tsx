@@ -58,7 +58,7 @@ function CategoryModal({ existing, onClose }: { existing?: ToppingCategory; onCl
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
               placeholder="Enter category name"
-              className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors"
+              className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors"
             />
           </div>
         </div>
@@ -115,19 +115,19 @@ function ItemModal({ existing, categories, onClose }: { existing?: ToppingItem; 
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-white"><span className="text-red-400">*</span> Item Name</label>
               <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter item name"
-                className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors" />
+                className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors" />
             </div>
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-white"><span className="text-red-400">*</span> Price</label>
               <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Enter price" min={0}
-                className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors" />
+                className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors" />
             </div>
           </div>
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-white"><span className="text-red-400">*</span> Toppings Category</label>
             <div className="relative">
               <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}
-                className="appearance-none w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-colors scheme-dark">
+                className="appearance-none w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white transition-colors scheme-dark">
                 <option value="">Select toppings category</option>
                 {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
               </select>
@@ -262,7 +262,7 @@ export default function ToppingsPage() {
           {tab === "items" && (
             <div className="relative">
               <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}
-                className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white/20 scheme-dark">
+                className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white scheme-dark">
                 <option value="">All Category</option>
                 {allCategories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
               </select>
@@ -271,7 +271,7 @@ export default function ToppingsPage() {
           )}
           <div className="relative">
             <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as "all" | Status)}
-              className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white/20 scheme-dark">
+              className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white scheme-dark">
               <option value="all">All Status</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
