@@ -1,5 +1,6 @@
 import Sidebar from "@/components/admin/Sidebar";
 import TopBar from "@/components/admin/TopBar";
+import ToastContainer from "@/components/ui/ToastContainer";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,6 +12,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {children}
         </main>
       </div>
+      <ToastContainer />
     </div>
   );
 }
