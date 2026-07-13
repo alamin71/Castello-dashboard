@@ -111,8 +111,9 @@ export default function ProductsPage() {
   const [typeFilter, setTypeFilter] = useState<"" | "single" | "variant">("");
   const [statusFilter, setStatusFilter] = useState<"" | "active" | "inactive">("");
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
+  const [limit, setLimit] = useState(10);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ProductItem | null>(null);
 
   const params = {
@@ -151,8 +152,8 @@ export default function ProductsPage() {
   const totalPages = meta?.totalPage ?? 1;
 
   return (
-    <div className="p-6 min-h-screen">
-      <div className="flex items-center justify-between mb-6">
+    <div className="flex flex-col h-full p-6">
+      <div className="shrink-0 flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-white">Products</h1>
         <Link
           href="/menu/products/add"
@@ -164,7 +165,7 @@ export default function ProductsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="shrink-0 flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 w-72">
           <Search size={16} className="text-white/30 shrink-0" />
           <input
@@ -216,9 +217,10 @@ export default function ProductsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-[#1a1a1a] rounded-2xl border border-white/6 overflow-visible">
+      <div className="flex-1 min-h-0 bg-[#1a1a1a] rounded-2xl border border-white/6 overflow-hidden">
+        <div className="h-full overflow-y-auto" onScroll={() => openMenu !== null && setOpenMenu(null)}>
         <table className="w-full border-collapse">
-          <thead>
+          <thead className="sticky top-0 z-10 bg-[#1a1a1a]">
             <tr className="border-b border-white/6">
 
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider rounded-tl-2xl">SL</th>
@@ -297,7 +299,7 @@ export default function ProductsPage() {
                     <StatusBadge status={product.status} />
                   </td>
                   <td className="px-5 py-4">
-                    <div className="flex items-center gap-1 relative">
+                    <div className="flex items-center gap-1">
                       <Link
                         href={`/menu/products/${product._id}/edit`}
                         className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"
@@ -305,13 +307,24 @@ export default function ProductsPage() {
                         <Pencil size={15} />
                       </Link>
                       <button
-                        onClick={() => setOpenMenu(openMenu === product._id ? null : product._id)}
+                        onClick={(e) => {
+                          if (openMenu === product._id) {
+                            setOpenMenu(null);
+                          } else {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            setMenuPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                            setOpenMenu(product._id);
+                          }
+                        }}
                         className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"
                       >
                         <MoreVertical size={15} />
                       </button>
-                      {openMenu === product._id && (
-                        <div className="absolute right-0 top-9 z-50 bg-[#1e1e1e] border border-white/10 rounded-2xl shadow-2xl w-44 overflow-hidden">
+                      {openMenu === product._id && menuPosition && (
+                        <div
+                          style={{ top: menuPosition.top, right: menuPosition.right }}
+                          className="fixed z-9999 bg-[#1e1e1e] border border-white/10 rounded-2xl shadow-2xl w-44 overflow-hidden"
+                        >
                           <button
                             onClick={() => handleStatusToggle(product)}
                             className={`flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors ${
@@ -341,10 +354,11 @@ export default function ProductsPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between mt-5">
+      <div className="shrink-0 flex items-center justify-between mt-5">
         <div className="flex items-center gap-2 text-sm text-white/40">
           <span>Showing per page</span>
           <div className="relative">
@@ -392,7 +406,7 @@ export default function ProductsPage() {
       )}
 
       {openMenu !== null && (
-        <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(null)} />
+        <div className="fixed inset-0 z-9998" onClick={() => { setOpenMenu(null); setMenuPosition(null); }} />
       )}
     </div>
   );
