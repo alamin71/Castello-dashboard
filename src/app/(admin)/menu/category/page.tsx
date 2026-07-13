@@ -288,11 +288,12 @@ export default function CategoryPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | Status>("all");
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
+  const [limit, setLimit] = useState(10);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editCategory, setEditCategory] = useState<CategoryItem | null>(null);
   const [deleteCategory, setDeleteCategory] = useState<CategoryItem | null>(null);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
 
   // drag-and-drop state
   const [localOrder, setLocalOrder] = useState<CategoryItem[] | null>(null);
@@ -376,9 +377,9 @@ export default function CategoryPage() {
   };
 
   return (
-    <div className="p-6 min-h-screen">
+    <div className="flex flex-col h-full p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="shrink-0 flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-white">Categories</h1>
         <button
           onClick={() => setShowAddModal(true)}
@@ -390,7 +391,7 @@ export default function CategoryPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="shrink-0 flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 w-72">
           <Search size={16} className="text-white/30 shrink-0" />
           <input
@@ -415,9 +416,10 @@ export default function CategoryPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-[#1a1a1a] rounded-2xl overflow-visible border border-white/6">
+      <div className="flex-1 min-h-0 bg-[#1a1a1a] rounded-2xl overflow-hidden border border-white/6">
+        <div className="h-full overflow-y-auto" onScroll={() => openMenu !== null && setOpenMenu(null)}>
         <table className="w-full">
-          <thead>
+          <thead className="sticky top-0 z-10 bg-[#1a1a1a]">
             <tr className="border-b border-white/6">
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider rounded-tl-2xl">SL</th>
               <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Category ID</th>
@@ -489,7 +491,7 @@ export default function CategoryPage() {
                     <StatusBadge status={cat.status} />
                   </td>
                   <td className="px-5 py-4">
-                    <div className="flex items-center gap-1 relative">
+                    <div className="flex items-center gap-1">
                       <button
                         onClick={() => setEditCategory(cat)}
                         className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"
@@ -497,7 +499,15 @@ export default function CategoryPage() {
                         <Pencil size={15} />
                       </button>
                       <button
-                        onClick={() => setOpenMenu(openMenu === cat._id ? null : cat._id)}
+                        onClick={(e) => {
+                          if (openMenu === cat._id) {
+                            setOpenMenu(null);
+                          } else {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            setMenuPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                            setOpenMenu(cat._id);
+                          }
+                        }}
                         className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"
                       >
                         <MoreVertical size={15} />
@@ -509,8 +519,11 @@ export default function CategoryPage() {
                       >
                         <GripVertical size={15} />
                       </button>
-                      {openMenu === cat._id && (
-                        <div className="absolute right-0 top-9 z-50 bg-[#1e1e1e] border border-white/10 rounded-2xl shadow-2xl w-44 overflow-hidden">
+                      {openMenu === cat._id && menuPosition && (
+                        <div
+                          style={{ top: menuPosition.top, right: menuPosition.right }}
+                          className="fixed z-9999 bg-[#1e1e1e] border border-white/10 rounded-2xl shadow-2xl w-44 overflow-hidden"
+                        >
                           <button
                             onClick={() => toggleStatus(cat)}
                             className={`flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors ${
@@ -538,10 +551,11 @@ export default function CategoryPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between mt-5">
+      <div className="shrink-0 flex items-center justify-between mt-5">
         <div className="flex items-center gap-2 text-sm text-white/40">
           <span>Showing per page</span>
           <div className="relative">
@@ -550,9 +564,9 @@ export default function CategoryPage() {
               onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
               className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-1.5 pr-7 text-sm text-white outline-none"
             >
+              <option value={10}>10</option>
               <option value={20}>20</option>
               <option value={50}>50</option>
-              <option value={100}>100</option>
             </select>
             <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
           </div>
@@ -587,7 +601,7 @@ export default function CategoryPage() {
 
       {/* Close menu on outside click */}
       {openMenu !== null && (
-        <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(null)} />
+        <div className="fixed inset-0 z-9998" onClick={() => { setOpenMenu(null); setMenuPosition(null); }} />
       )}
     </div>
   );
