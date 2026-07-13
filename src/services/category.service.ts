@@ -6,15 +6,17 @@ import {
   CreateCategoryPayload,
   UpdateCategoryPayload,
   CategoryListParams,
+  CategoryListResponse,
 } from "@/types/category.types";
 
 export const categoryService = {
-  list: async (params: CategoryListParams): Promise<CategoryItem[]> => {
-    const res = await apiClient.get<ApiResponse<CategoryItem[]>>(
-      API.categories.list,
-      { params }
-    );
-    return res.data.data;
+  list: async (params: CategoryListParams): Promise<CategoryListResponse> => {
+    const res = await apiClient.get(API.categories.list, { params });
+    const data = res.data?.data;
+    if (data?.result && Array.isArray(data.result)) return data;
+    if (Array.isArray(data))
+      return { result: data, meta: { page: 1, limit: data.length, total: data.length, totalPage: 1 } };
+    return { result: [], meta: { page: 1, limit: 10, total: 0, totalPage: 1 } };
   },
 
   create: async (payload: CreateCategoryPayload): Promise<CategoryItem> => {

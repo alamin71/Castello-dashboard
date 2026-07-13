@@ -27,3 +27,15 @@ export interface CategoryListParams {
   searchTerm?: string;
   status?: "active" | "inactive";
 }
+
+export interface CategoryListMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPage: number;
+}
+
+export interface CategoryListResponse {
+  result: CategoryItem[];
+  meta: CategoryListMeta;
+}

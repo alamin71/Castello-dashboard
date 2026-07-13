@@ -66,6 +66,32 @@ function CategoryName({ categoryId }: { categoryId: ProductItem["categoryId"] })
   return <span className="text-sm text-white/40">—</span>;
 }
 
+function ProductSkeletonRow() {
+  return (
+    <tr className="border-b border-white/4">
+      <td className="px-5 py-4"><div className="skeleton h-4 w-6 rounded" /></td>
+      <td className="px-5 py-4"><div className="skeleton h-4 w-28 rounded" /></td>
+      <td className="px-5 py-4"><div className="skeleton w-10 h-10 rounded-xl" /></td>
+      <td className="px-5 py-4">
+        <div className="space-y-2">
+          <div className="skeleton h-4 w-32 rounded" />
+          <div className="skeleton h-3 w-44 rounded" />
+        </div>
+      </td>
+      <td className="px-5 py-4"><div className="skeleton h-4 w-20 rounded" /></td>
+      <td className="px-5 py-4"><div className="skeleton h-5 w-16 rounded-full" /></td>
+      <td className="px-5 py-4"><div className="skeleton h-4 w-16 rounded" /></td>
+      <td className="px-5 py-4"><div className="skeleton h-6 w-20 rounded-full" /></td>
+      <td className="px-5 py-4">
+        <div className="flex items-center gap-1">
+          <div className="skeleton w-7 h-7 rounded-lg" />
+          <div className="skeleton w-7 h-7 rounded-lg" />
+        </div>
+      </td>
+    </tr>
+  );
+}
+
 function DeleteModal({
   name,
   onConfirm,
@@ -236,11 +262,7 @@ export default function ProductsPage() {
           </thead>
           <tbody>
             {isLoading ? (
-              <tr>
-                <td colSpan={9} className="px-5 py-10 text-center text-white/30 text-sm">
-                  Loading…
-                </td>
-              </tr>
+              Array.from({ length: 10 }).map((_, i) => <ProductSkeletonRow key={i} />)
             ) : products.length === 0 ? (
               <tr>
                 <td colSpan={9} className="px-5 py-10 text-center text-white/30 text-sm">

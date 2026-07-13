@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { categoryService } from "@/services/category.service";
-import { CategoryListParams } from "@/types/category.types";
+import { CategoryListParams, CategoryListResponse } from "@/types/category.types";
 
 export function useCategories(params: CategoryListParams) {
   return useQuery({

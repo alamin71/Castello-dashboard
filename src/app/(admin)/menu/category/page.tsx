@@ -238,6 +238,26 @@ function EditCategoryModal({
   );
 }
 
+function CategorySkeletonRow() {
+  return (
+    <tr className="border-b border-white/4">
+      <td className="px-5 py-4"><div className="skeleton h-4 w-6 rounded" /></td>
+      <td className="px-5 py-4"><div className="skeleton h-4 w-24 rounded" /></td>
+      <td className="px-5 py-4"><div className="skeleton w-9 h-9 rounded-lg" /></td>
+      <td className="px-5 py-4"><div className="skeleton h-4 w-36 rounded" /></td>
+      <td className="px-5 py-4"><div className="skeleton h-4 w-8 rounded" /></td>
+      <td className="px-5 py-4"><div className="skeleton h-6 w-20 rounded-full" /></td>
+      <td className="px-5 py-4">
+        <div className="flex items-center gap-1">
+          <div className="skeleton w-7 h-7 rounded-lg" />
+          <div className="skeleton w-7 h-7 rounded-lg" />
+          <div className="skeleton w-7 h-7 rounded-lg" />
+        </div>
+      </td>
+    </tr>
+  );
+}
+
 function DeleteConfirmModal({
   category,
   onClose,
@@ -322,8 +342,9 @@ export default function CategoryPage() {
   }, [data]);
 
   // use localOrder optimistically, fall back to server data
-  const categories = localOrder ?? data ?? [];
-  const totalPages = 1;
+  const categories = localOrder ?? data?.result ?? [];
+  const meta = data?.meta;
+  const totalPages = meta?.totalPage ?? 1;
 
   const toggleStatus = (cat: CategoryItem) => {
     const newStatus: Status = cat.status === "active" ? "inactive" : "active";
@@ -361,19 +382,6 @@ export default function CategoryPage() {
         setLocalOrder(null);
       },
     });
-  };
-
-  const pageNumbers = () => {
-    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
-    const pages: (number | "...")[] = [];
-    if (page <= 4) {
-      pages.push(1, 2, 3, 4, 5, "...", totalPages);
-    } else if (page >= totalPages - 3) {
-      pages.push(1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-    } else {
-      pages.push(1, "...", page - 1, page, page + 1, "...", totalPages);
-    }
-    return pages;
   };
 
   return (
@@ -432,11 +440,7 @@ export default function CategoryPage() {
           </thead>
           <tbody>
             {isLoading ? (
-              <tr>
-                <td colSpan={7} className="px-5 py-12 text-center text-sm text-white/40">
-                  Loading...
-                </td>
-              </tr>
+              Array.from({ length: 10 }).map((_, i) => <CategorySkeletonRow key={i} />)
             ) : isError ? (
               <tr>
                 <td colSpan={7} className="px-5 py-12 text-center text-sm text-red-400">
@@ -570,28 +574,27 @@ export default function CategoryPage() {
             </select>
             <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
           </div>
+          {meta && (
+            <span className="ml-2">
+              {(page - 1) * limit + 1}–{Math.min(page * limit, meta.total)} of {meta.total}
+            </span>
+          )}
         </div>
-        {totalPages > 1 && (
-          <div className="flex items-center gap-1">
-            {pageNumbers().map((p, i) =>
-              p === "..." ? (
-                <span key={`ellipsis-${i}`} className="text-white/30 px-1">...</span>
-              ) : (
-                <button
-                  key={p}
-                  onClick={() => setPage(p as number)}
-                  className={`w-8 h-8 rounded-lg text-sm transition-colors ${
-                    p === page
-                      ? "bg-white text-black font-medium"
-                      : "text-white/50 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  {String(p).padStart(2, "0")}
-                </button>
-              )
-            )}
-          </div>
-        )}
+        <div className="flex items-center gap-1">
+          {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => i + 1).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              className={`w-8 h-8 rounded-lg text-sm transition-colors ${
+                p === page
+                  ? "bg-white text-black font-medium"
+                  : "text-white/50 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              {String(p).padStart(2, "0")}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Modals */}
