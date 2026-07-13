@@ -50,6 +50,7 @@ export interface UpdateProductPayload {
   name?: string;
   description?: string;
   categoryId?: string;
+  type?: "single" | "variant";
   price?: number;
   status?: "active" | "inactive";
   toppingCategoryIds?: string[];
@@ -57,6 +58,7 @@ export interface UpdateProductPayload {
   availability?: { website: boolean; pos: boolean; kiosk: boolean };
   mainImage?: File;
   gallery?: File[];
+  removeGallery?: string[];
   variants?: CreateProductVariant[];
 }
 

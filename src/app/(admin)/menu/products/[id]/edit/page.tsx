@@ -25,7 +25,6 @@ import { useToppingCategories } from "@/hooks/queries/useToppingCategories";
 import { useToppingItems } from "@/hooks/queries/useToppingItems";
 import { ToppingCategory, ToppingItem } from "@/types/topping.types";
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function getId(v: string | { _id: string }): string {
   return typeof v === "object" && v !== null ? v._id : v;
 }
@@ -140,7 +139,6 @@ function ToppingsModal({
 
   const toggleCat = (id: string) =>
     setSelectedCatIds((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
-
   const toggleItem = (id: string) =>
     setSelectedItemIds((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
 
@@ -272,6 +270,7 @@ export default function EditProductPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [productType, setProductType] = useState<"single" | "variant">("single");
   const [price, setPrice] = useState("");
   const [variants, setVariants] = useState<VariantRowData[]>([
     { variantCategoryId: "", variantItemId: "", price: "", status: "active" },
@@ -286,6 +285,7 @@ export default function EditProductPage() {
   const [newMainImage, setNewMainImage] = useState<File | null>(null);
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [existingGallery, setExistingGallery] = useState<string[]>([]);
+  const [removedGallery, setRemovedGallery] = useState<string[]>([]);
   const [newGallery, setNewGallery] = useState<File[]>([]);
   const [newGalleryPreviews, setNewGalleryPreviews] = useState<string[]>([]);
 
@@ -302,6 +302,7 @@ export default function EditProductPage() {
     setName(product.name);
     setDescription(product.description ?? "");
     setCategoryId(getId(product.categoryId));
+    setProductType(product.type);
     if (product.price !== undefined) setPrice(String(product.price));
     if (product.availability) {
       setAvailability({
@@ -310,14 +311,11 @@ export default function EditProductPage() {
         kiosk: product.availability.kiosk ?? true,
       });
     }
-    // Toppings
     setToppingSelection({
       toppingCategoryIds: product.toppingCategoryIds.map(getId),
       defaultToppingItemIds: product.defaultToppingItemIds.map(getId),
     });
-    // Gallery
     setExistingGallery(product.gallery ?? []);
-    // Variants
     if (product.type === "variant" && product.variants?.length > 0) {
       setVariants(
         product.variants.map((v) => ({
@@ -346,15 +344,20 @@ export default function EditProductPage() {
 
   const handleGallery = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
-    const remaining = 5 - existingGallery.length - newGallery.length;
-    const toAdd = files.slice(0, remaining);
+    const totalNow = existingGallery.length + newGallery.length;
+    const canAdd = 5 - totalNow;
+    if (canAdd <= 0) return;
+    const toAdd = files.slice(0, canAdd);
     setNewGallery((prev) => [...prev, ...toAdd]);
     setNewGalleryPreviews((prev) => [...prev, ...toAdd.map((f) => URL.createObjectURL(f))]);
     if (galleryRef.current) galleryRef.current.value = "";
   };
 
-  const removeExistingGallery = (idx: number) =>
+  const removeExistingGallery = (idx: number) => {
+    const url = existingGallery[idx];
     setExistingGallery((prev) => prev.filter((_, i) => i !== idx));
+    setRemovedGallery((prev) => [...prev, url]);
+  };
 
   const removeNewGallery = (idx: number) => {
     setNewGallery((prev) => prev.filter((_, i) => i !== idx));
@@ -401,9 +404,9 @@ export default function EditProductPage() {
     setError(null);
     if (!name.trim()) return setError("Product name is required.");
     if (!categoryId) return setError("Please select a category.");
-    if (product?.type === "single" && !price) return setError("Price is required.");
+    if (productType === "single" && !price) return setError("Price is required.");
     if (
-      product?.type === "variant" &&
+      productType === "variant" &&
       variants.some((v) => !v.variantCategoryId || !v.variantItemId || !v.price)
     )
       return setError("All variant fields (category, item, price) are required.");
@@ -415,14 +418,16 @@ export default function EditProductPage() {
           name: name.trim(),
           description: description.trim() || undefined,
           categoryId,
-          price: product?.type === "single" ? Number(price) : undefined,
+          type: productType,
+          price: productType === "single" ? Number(price) : undefined,
           toppingCategoryIds: toppingSelection.toppingCategoryIds,
           defaultToppingItemIds: toppingSelection.defaultToppingItemIds,
           availability,
           ...(newMainImage && { mainImage: newMainImage }),
           gallery: newGallery.length > 0 ? newGallery : undefined,
+          removeGallery: removedGallery.length > 0 ? removedGallery : undefined,
           variants:
-            product?.type === "variant"
+            productType === "variant"
               ? variants.map((v) => ({
                   variantCategoryId: v.variantCategoryId,
                   variantItemId: v.variantItemId,
@@ -544,16 +549,35 @@ export default function EditProductPage() {
               </div>
             </div>
 
-            {/* Type (read-only) */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-white/50">Type</label>
-              <div className="bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white/40 capitalize">
-                {product.type === "single" ? "Single Item" : "Variant Item"}
-              </div>
+            {/* Item Type — editable */}
+            <div className="grid grid-cols-2 gap-4">
+              {(["single", "variant"] as const).map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setProductType(type)}
+                  className={`flex items-center justify-between px-5 py-3.5 rounded-xl border text-sm font-medium transition-colors ${
+                    productType === type
+                      ? "border-[#ff4d00] text-white"
+                      : "border-white/10 text-white/50 hover:border-white/20"
+                  }`}
+                >
+                  {type === "single" ? "Single Item" : "Variant Item"}
+                  <span
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${
+                      productType === type ? "border-[#ff4d00]" : "border-white/30"
+                    }`}
+                  >
+                    {productType === type && (
+                      <span className="w-2 h-2 rounded-full bg-[#ff4d00]" />
+                    )}
+                  </span>
+                </button>
+              ))}
             </div>
 
             {/* Single Price */}
-            {product.type === "single" && (
+            {productType === "single" && (
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-white">
                   <span className="text-red-400">*</span> Price (Kr.)
@@ -569,7 +593,7 @@ export default function EditProductPage() {
             )}
 
             {/* Variants */}
-            {product.type === "variant" && (
+            {productType === "variant" && (
               <div className="space-y-3">
                 {variants.map((v, idx) => (
                   <div key={idx} className="space-y-1.5">
@@ -678,68 +702,68 @@ export default function EditProductPage() {
                   </div>
                 )}
               </div>
-              {currentMainImage && (
-                <button
-                  type="button"
-                  onClick={() => mainImageRef.current?.click()}
-                  className="w-full py-2 text-xs text-white/40 hover:text-white border border-white/10 rounded-xl transition-colors"
-                >
-                  Change Image
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => mainImageRef.current?.click()}
+                className="w-full py-2 text-xs text-white/40 hover:text-white border border-white/10 rounded-xl transition-colors"
+              >
+                Change Image
+              </button>
               <input ref={mainImageRef} type="file" accept="image/*" onChange={handleMainImage} className="hidden" />
             </div>
 
             {/* Gallery */}
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-white">Image Gallery</label>
-              {totalGallery > 0 ? (
+
+              {/* Existing + new thumbnails */}
+              {totalGallery > 0 && (
                 <div className="grid grid-cols-3 gap-1.5">
                   {existingGallery.map((src, i) => (
-                    <div key={`existing-${i}`} className="relative aspect-square rounded-lg overflow-hidden bg-white/5 group">
+                    <div key={`ex-${i}`} className="relative aspect-square rounded-lg overflow-hidden bg-white/5 group">
                       <Image src={src} alt={`Gallery ${i + 1}`} fill className="object-cover" />
                       <button
                         type="button"
                         onClick={() => removeExistingGallery(i)}
-                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
+                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 z-10"
                       >
                         <X size={12} />
                       </button>
                     </div>
                   ))}
                   {newGalleryPreviews.map((src, i) => (
-                    <div key={`new-${i}`} className="relative aspect-square rounded-lg overflow-hidden bg-white/5 group">
+                    <div key={`nw-${i}`} className="relative aspect-square rounded-lg overflow-hidden bg-white/5 group">
                       <Image src={src} alt={`New ${i + 1}`} fill className="object-cover" />
                       <button
                         type="button"
                         onClick={() => removeNewGallery(i)}
-                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
+                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 z-10"
                       >
                         <X size={12} />
                       </button>
                     </div>
                   ))}
-                  {totalGallery < 5 && (
-                    <div
-                      onClick={() => galleryRef.current?.click()}
-                      className="aspect-square rounded-lg border border-white/10 flex items-center justify-center cursor-pointer hover:border-white/20 transition-colors bg-[#1a1a1a]"
-                    >
-                      <Plus size={18} className="text-white/30" />
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div
-                  onClick={() => galleryRef.current?.click()}
-                  className="bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3.5 flex items-center gap-3 cursor-pointer hover:border-white/20 transition-colors"
-                >
-                  <CloudUpload size={22} className="text-white/30 shrink-0" />
-                  <div>
-                    <p className="text-sm text-white/40">Upload multiple images</p>
-                    <p className="text-xs text-white/25 mt-0.5">Webp, JPEG, PNG · max 5</p>
-                  </div>
                 </div>
               )}
+
+              {/* Add button — always visible when under limit */}
+              {totalGallery < 5 && (
+                <button
+                  type="button"
+                  onClick={() => galleryRef.current?.click()}
+                  className="w-full flex items-center gap-3 bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 hover:border-white/20 transition-colors cursor-pointer"
+                >
+                  <CloudUpload size={18} className="text-white/30 shrink-0" />
+                  <div className="text-left">
+                    <p className="text-sm text-white/40">
+                      {totalGallery === 0 ? "Upload gallery images" : "Add more images"}
+                    </p>
+                    <p className="text-xs text-white/25">{5 - totalGallery} slot(s) remaining</p>
+                  </div>
+                  <Plus size={16} className="text-white/30 ml-auto shrink-0" />
+                </button>
+              )}
+
               <input ref={galleryRef} type="file" accept="image/*" multiple onChange={handleGallery} className="hidden" />
             </div>
 
