@@ -189,17 +189,19 @@ function OfferProductsModal({
                     <p className="text-sm font-medium text-white">
                       <span className="text-red-400">*</span> Choose Product Variant
                     </p>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        allVariantsSelected
-                          ? setSelectedVariantIds(new Set())
-                          : setSelectedVariantIds(new Set(allVariants.map((v) => v.id)))
-                      }
-                      className="text-xs text-white/50 hover:text-white transition-colors"
-                    >
-                      {allVariantsSelected ? "Deselect all" : "Select all"}
-                    </button>
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={allVariantsSelected}
+                        onChange={() =>
+                          allVariantsSelected
+                            ? setSelectedVariantIds(new Set())
+                            : setSelectedVariantIds(new Set(allVariants.map((v) => v.id)))
+                        }
+                        className="w-4 h-4 rounded accent-white"
+                      />
+                      <span className="text-xs text-white/50">Select all</span>
+                    </label>
                   </div>
                   <div className="flex gap-2 flex-wrap">
                     {allVariants.map((v) => {
@@ -234,17 +236,19 @@ function OfferProductsModal({
                     <p className="text-sm font-medium text-white">Choose product</p>
                     <p className="text-xs text-white/40 mt-0.5">You can add multiple products into this offer.</p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      allProductsSelected
-                        ? setSelectedProductIds(new Set())
-                        : setSelectedProductIds(new Set(filteredProducts.map((p) => p._id)))
-                    }
-                    className="text-xs text-white/50 hover:text-white transition-colors"
-                  >
-                    {allProductsSelected ? "Deselect all" : "Select all"}
-                  </button>
+                  <label className="flex items-center gap-1.5 cursor-pointer self-start">
+                    <input
+                      type="checkbox"
+                      checked={allProductsSelected}
+                      onChange={() =>
+                        allProductsSelected
+                          ? setSelectedProductIds(new Set())
+                          : setSelectedProductIds(new Set(filteredProducts.map((p) => p._id)))
+                      }
+                      className="w-4 h-4 rounded accent-white"
+                    />
+                    <span className="text-xs text-white/50">Select all</span>
+                  </label>
                 </div>
 
                 {/* Search */}
@@ -324,12 +328,14 @@ function OfferProductsModal({
                                 <p className="text-xs text-white/40 mb-1">Choose Variant</p>
                                 <div className="flex gap-1.5 flex-wrap">
                                   {displayVariants.map((v) => (
-                                    <span
+                                    <button
                                       key={v.id}
-                                      className="px-2.5 py-1 rounded-lg border border-white/20 text-xs text-white/70"
+                                      type="button"
+                                      onClick={(e) => { e.stopPropagation(); toggleVariant(v.id); }}
+                                      className="px-2.5 py-1 rounded-lg border border-white/20 text-xs text-white/70 hover:border-red-400/50 hover:text-red-400 transition-colors"
                                     >
                                       {v.name} {v.price.toLocaleString()} kr.
-                                    </span>
+                                    </button>
                                   ))}
                                 </div>
                               </div>
