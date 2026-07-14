@@ -43,6 +43,9 @@ export interface UpdateOfferPayload {
   description?: string;
   price?: number;
   status?: "active" | "inactive";
+  offerItems?: OfferItemPayload[];
+  availability?: { website: boolean; pos: boolean; kiosk: boolean };
+  availableFor?: { homeDelivery: boolean; takeaway: boolean };
   mainImage?: File;
   gallery?: File[];
 }

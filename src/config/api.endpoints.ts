@@ -65,6 +65,7 @@ const API = {
   offers: {
     list:   "/admin/promotions/offers",
     create: "/admin/promotions/offers",
+    getById: (id: string) => `/admin/promotions/offers/${id}`,
     update: (id: string) => `/admin/promotions/offers/${id}`,
     delete: (id: string) => `/admin/promotions/offers/${id}`,
   },

@@ -8,9 +8,10 @@ export function useUpdateOffer() {
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: UpdateOfferPayload }) =>
       offerService.update(id, payload),
-    onSuccess: () => {
+    onSuccess: (_, { id }) => {
       toast.success("Offer updated successfully");
       queryClient.invalidateQueries({ queryKey: ["offers"] });
+      queryClient.invalidateQueries({ queryKey: ["offer", id] });
     },
   });
 }

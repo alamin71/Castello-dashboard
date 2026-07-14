@@ -40,11 +40,19 @@ export const offerService = {
     if (payload.description !== undefined) form.append("description", payload.description);
     if (payload.price !== undefined) form.append("price", String(payload.price));
     if (payload.status) form.append("status", payload.status);
+    if (payload.offerItems) form.append("offerItems", JSON.stringify(payload.offerItems));
+    if (payload.availability) form.append("availability", JSON.stringify(payload.availability));
+    if (payload.availableFor) form.append("availableFor", JSON.stringify(payload.availableFor));
     if (payload.mainImage) form.append("mainImage", payload.mainImage);
     if (payload.gallery) payload.gallery.forEach((f) => form.append("gallery", f));
     const res = await apiClient.patch(API.offers.update(id), form, {
       headers: { "Content-Type": "multipart/form-data" },
     });
+    return res.data.data;
+  },
+
+  getById: async (id: string): Promise<OfferItem> => {
+    const res = await apiClient.get(API.offers.getById(id));
     return res.data.data;
   },
 
