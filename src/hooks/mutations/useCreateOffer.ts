@@ -11,5 +11,8 @@ export function useCreateOffer() {
       toast.success("Offer created successfully");
       queryClient.invalidateQueries({ queryKey: ["offers"] });
     },
+    onError: () => {
+      toast.error("Failed to create offer");
+    },
   });
 }

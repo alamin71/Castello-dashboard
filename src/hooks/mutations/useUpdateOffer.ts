@@ -13,5 +13,8 @@ export function useUpdateOffer() {
       queryClient.invalidateQueries({ queryKey: ["offers"] });
       queryClient.invalidateQueries({ queryKey: ["offer", id] });
     },
+    onError: () => {
+      toast.error("Failed to update offer");
+    },
   });
 }

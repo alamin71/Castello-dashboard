@@ -482,9 +482,13 @@ export default function CreateOfferPage() {
   };
 
   const handleGallery = (files: FileList) => {
-    const arr = Array.from(files);
-    setGallery((prev) => [...prev, ...arr]);
-    setGalleryPreviews((prev) => [...prev, ...arr.map((f) => URL.createObjectURL(f))]);
+    setGallery((prev) => {
+      const remaining = 5 - prev.length;
+      if (remaining <= 0) return prev;
+      const arr = Array.from(files).slice(0, remaining);
+      setGalleryPreviews((pp) => [...pp, ...arr.map((f) => URL.createObjectURL(f))]);
+      return [...prev, ...arr];
+    });
   };
 
   const removeGalleryItem = (idx: number) => {

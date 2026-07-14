@@ -472,9 +472,13 @@ function EditOfferForm({ offer }: { offer: OfferItem }) {
   };
 
   const handleNewGallery = (files: FileList) => {
-    const arr = Array.from(files);
-    setNewGallery((prev) => [...prev, ...arr]);
-    setNewGalleryPreviews((prev) => [...prev, ...arr.map((f) => URL.createObjectURL(f))]);
+    setNewGallery((prev) => {
+      const remaining = 5 - existingGallery.length - prev.length;
+      if (remaining <= 0) return prev;
+      const arr = Array.from(files).slice(0, remaining);
+      setNewGalleryPreviews((pp) => [...pp, ...arr.map((f) => URL.createObjectURL(f))]);
+      return [...prev, ...arr];
+    });
   };
 
   const removeNewGalleryItem = (idx: number) => {
