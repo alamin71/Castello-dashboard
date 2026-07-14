@@ -383,6 +383,7 @@ export default function OfferForm({ initialData, offerId }: { initialData?: Offe
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [galleryFilePreviews, setGalleryFilePreviews] = useState<string[]>([]);
   const [existingGalleryUrls, setExistingGalleryUrls] = useState<string[]>(initialData?.gallery ?? []);
+  const [removedGalleryUrls, setRemovedGalleryUrls] = useState<string[]>([]);
 
   const mainImageRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
@@ -408,7 +409,11 @@ export default function OfferForm({ initialData, offerId }: { initialData?: Offe
     });
   };
 
-  const removeExistingGallery = (i: number) => setExistingGalleryUrls((p) => p.filter((_, idx) => idx !== i));
+  const removeExistingGallery = (i: number) => {
+    const url = existingGalleryUrls[i];
+    setExistingGalleryUrls((p) => p.filter((_, idx) => idx !== i));
+    setRemovedGalleryUrls((p) => [...p, url]);
+  };
   const removeNewGallery = (i: number) => {
     setGalleryFiles((p) => p.filter((_, idx) => idx !== i));
     setGalleryFilePreviews((p) => p.filter((_, idx) => idx !== i));
@@ -456,6 +461,7 @@ export default function OfferForm({ initialData, offerId }: { initialData?: Offe
             ...common,
             ...(mainImageFile ? { mainImage: mainImageFile } : {}),
             ...(galleryFiles.length > 0 ? { gallery: galleryFiles } : {}),
+            ...(removedGalleryUrls.length > 0 ? { removeGallery: removedGalleryUrls } : {}),
           },
         },
         { onSuccess: () => router.push("/promotions/special-offer") }

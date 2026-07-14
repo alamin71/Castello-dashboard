@@ -48,6 +48,7 @@ export interface UpdateOfferPayload {
   availableFor?: { homeDelivery: boolean; takeaway: boolean };
   mainImage?: File;
   gallery?: File[];
+  removeGallery?: string[];
 }
 
 export interface OfferListParams {

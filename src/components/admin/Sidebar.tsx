@@ -39,9 +39,9 @@ const navItems = [
     label: "Promotions",
     icon: Tag,
     children: [
-      { label: "Special Offer", href: "/promotions/special-offer" },
-      { label: "Category", href: "/promotions/category" },
-      { label: "Variants", href: "/promotions/variants" },
+      { label: "Special Offers", href: "/promotions/special-offer" },
+      { label: "Coupons", href: "/promotions/coupons" },
+      { label: "Discounts", href: "/promotions/discounts" },
     ],
   },
   { label: "Customers", href: "/customers", icon: Users },
