@@ -46,7 +46,7 @@ export const offerService = {
     if (payload.mainImage) form.append("mainImage", payload.mainImage);
     if (payload.gallery) payload.gallery.forEach((f) => form.append("gallery", f));
     if (payload.removeGallery && payload.removeGallery.length > 0)
-      form.append("removeGallery", JSON.stringify(payload.removeGallery));
+      payload.removeGallery.forEach((url) => form.append("removeGallery[]", url));
     const res = await apiClient.patch(API.offers.update(id), form, {
       headers: { "Content-Type": "multipart/form-data" },
     });
