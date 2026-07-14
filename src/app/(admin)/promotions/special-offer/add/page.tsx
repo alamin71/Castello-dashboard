@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   CloudUpload, Plus, X, ChevronLeft, ChevronRight, Search, Trash2,
 } from "lucide-react";
@@ -150,7 +151,10 @@ function OfferProductsModal({
                       className="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-white/10 hover:border-white/20 transition-colors"
                     >
                       <span className="text-sm text-white">{cat.name}</span>
-                      <ChevronRight size={14} className="text-white/40" />
+                      <div className="flex items-center gap-2 text-white/40">
+                        <span className="text-xs">{cat.totalProducts ?? 0} products</span>
+                        <ChevronRight size={14} />
+                      </div>
                     </button>
                   ))
                 )}
@@ -424,7 +428,7 @@ export default function CreateOfferPage() {
               onChange={(e) => setPrice(e.target.value)}
               placeholder="Enter offer price"
               min={0}
-              className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors"
+              className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
 
@@ -521,18 +525,32 @@ export default function CreateOfferPage() {
             <label className="text-sm font-medium text-white">
               <span className="text-red-400">*</span> Main Image
             </label>
-            <div
-              onClick={() => mainImageRef.current?.click()}
-              className="bg-[#1a1a1a] border border-white/10 rounded-xl p-5 text-center cursor-pointer hover:border-white/20 transition-colors overflow-hidden"
-            >
+            <div className="relative bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden">
               {mainImagePreview ? (
-                <img src={mainImagePreview} alt="main" className="w-full h-32 object-cover rounded-lg" />
-              ) : (
                 <>
+                  <div
+                    onClick={() => mainImageRef.current?.click()}
+                    className="relative w-full aspect-square cursor-pointer"
+                  >
+                    <Image src={mainImagePreview} alt="Main image" fill className="object-cover" />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setMainImage(null); setMainImagePreview(null); if (mainImageRef.current) mainImageRef.current.value = ""; }}
+                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-black/80 transition-colors z-10"
+                  >
+                    <X size={13} />
+                  </button>
+                </>
+              ) : (
+                <div
+                  onClick={() => mainImageRef.current?.click()}
+                  className="p-6 text-center cursor-pointer hover:border-white/20 transition-colors"
+                >
                   <CloudUpload size={28} className="mx-auto text-white/30 mb-2" />
                   <p className="text-sm text-white/40">Upload an image</p>
-                  <p className="text-xs text-white/25 mt-1">Webp, JPEG, PNG · 1320×520 px</p>
-                </>
+                  <p className="text-xs text-white/25 mt-1">Webp, JPEG, PNG · 220×220 px</p>
+                </div>
               )}
             </div>
             <input
@@ -547,30 +565,41 @@ export default function CreateOfferPage() {
           {/* Gallery */}
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-white">Image Gallery</label>
-            {galleryPreviews.length > 0 && (
-              <div className="grid grid-cols-3 gap-1.5 mb-2">
+            {galleryPreviews.length > 0 ? (
+              <div className="grid grid-cols-3 gap-1.5">
                 {galleryPreviews.map((src, i) => (
-                  <div key={i} className="relative group">
-                    <img src={src} alt="" className="w-full h-16 object-cover rounded-lg" />
+                  <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-white/5 group">
+                    <Image src={src} alt={`Gallery ${i + 1}`} fill className="object-cover" />
                     <button
                       type="button"
                       onClick={() => removeGalleryItem(i)}
-                      className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      <X size={14} className="text-red-400" />
+                      <X size={14} className="text-white" />
                     </button>
                   </div>
                 ))}
+                {gallery.length < 5 && (
+                  <div
+                    onClick={() => galleryRef.current?.click()}
+                    className="aspect-square rounded-lg border border-white/10 flex items-center justify-center cursor-pointer hover:border-white/20 transition-colors bg-[#1a1a1a]"
+                  >
+                    <Plus size={18} className="text-white/30" />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div
+                onClick={() => galleryRef.current?.click()}
+                className="bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3.5 flex items-center gap-3 cursor-pointer hover:border-white/20 transition-colors"
+              >
+                <CloudUpload size={22} className="text-white/30 shrink-0" />
+                <div>
+                  <p className="text-sm text-white/40">Upload multiple images</p>
+                  <p className="text-xs text-white/25 mt-0.5">Webp, JPEG, PNG · max 5</p>
+                </div>
               </div>
             )}
-            <div
-              onClick={() => galleryRef.current?.click()}
-              className="bg-[#1a1a1a] border border-white/10 rounded-xl p-5 text-center cursor-pointer hover:border-white/20 transition-colors"
-            >
-              <CloudUpload size={24} className="mx-auto text-white/30 mb-2" />
-              <p className="text-sm text-white/40">Upload gallery images</p>
-              <p className="text-xs text-white/25 mt-1">Multiple files allowed</p>
-            </div>
             <input
               ref={galleryRef}
               type="file"

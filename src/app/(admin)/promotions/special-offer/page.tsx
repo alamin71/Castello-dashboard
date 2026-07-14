@@ -95,6 +95,12 @@ export default function SpecialOfferPage() {
 
   const catMap = new Map((catData?.result ?? []).map((c) => [c._id, c.name]));
 
+  const getOfferCategoryName = (catId: string | { _id: string; name: string }): string | undefined => {
+    if (typeof catId === "object" && catId.name) return catId.name;
+    const id = typeof catId === "string" ? catId : catId._id;
+    return catMap.get(id);
+  };
+
   const toggleStatus = (offer: OfferItem) => {
     const newStatus: Status = offer.status === "active" ? "inactive" : "active";
     updateOffer({ id: offer._id, payload: { status: newStatus } });
@@ -182,7 +188,7 @@ export default function SpecialOfferPage() {
               ) : (
                 offers.map((offer) => {
                   const categoryNames = offer.offerItems
-                    .map((item) => catMap.get(item.categoryId))
+                    .map((item) => getOfferCategoryName(item.categoryId))
                     .filter(Boolean) as string[];
 
                   return (

@@ -4,7 +4,7 @@ export interface OfferProductEntry {
 }
 
 export interface OfferItemPayload {
-  categoryId: string;
+  categoryId: string | { _id: string; name: string };
   isFixed: boolean;
   products: OfferProductEntry[];
 }
