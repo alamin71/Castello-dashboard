@@ -56,6 +56,7 @@ export interface OfferListParams {
   limit?: number;
   searchTerm?: string;
   status?: "active" | "inactive";
+  availability?: "website" | "pos" | "kiosk";
 }
 
 export interface OfferListMeta {

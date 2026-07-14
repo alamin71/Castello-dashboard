@@ -72,6 +72,7 @@ function DeleteConfirmModal({ offer, onClose }: { offer: OfferItem; onClose: () 
 export default function SpecialOfferPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | Status>("all");
+  const [availabilityFilter, setAvailabilityFilter] = useState<"all" | "website" | "pos" | "kiosk">("all");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -83,6 +84,7 @@ export default function SpecialOfferPage() {
     limit,
     ...(search ? { searchTerm: search } : {}),
     ...(statusFilter !== "all" ? { status: statusFilter } : {}),
+    ...(availabilityFilter !== "all" ? { availability: availabilityFilter } : {}),
   };
 
   const { data, isLoading, isError } = useOffers(params);
@@ -144,17 +146,32 @@ export default function SpecialOfferPage() {
             className="bg-transparent text-sm text-white placeholder-white/30 outline-none w-full"
           />
         </div>
-        <div className="relative">
-          <select
-            value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value as "all" | Status); setPage(1); }}
-            className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white scheme-dark"
-          >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <select
+              value={availabilityFilter}
+              onChange={(e) => { setAvailabilityFilter(e.target.value as "all" | "website" | "pos" | "kiosk"); setPage(1); }}
+              className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white scheme-dark"
+            >
+              <option value="all">All Availability</option>
+              <option value="website">Website</option>
+              <option value="pos">POS</option>
+              <option value="kiosk">Kiosk</option>
+            </select>
+            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+          </div>
+          <div className="relative">
+            <select
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value as "all" | Status); setPage(1); }}
+              className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white scheme-dark"
+            >
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+          </div>
         </div>
       </div>
 
