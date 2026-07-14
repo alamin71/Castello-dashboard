@@ -1,12 +1,25 @@
-export interface OfferProductEntry {
+// Shapes returned by the API — IDs may be populated objects
+export interface OfferProductResponse {
   productId: string | { _id: string; name: string };
   variantItemIds: (string | { _id: string; name: string })[];
 }
 
-export interface OfferItemPayload {
+export interface OfferItemResponse {
   categoryId: string | { _id: string; name: string };
   isFixed: boolean;
-  products: OfferProductEntry[];
+  products: OfferProductResponse[];
+}
+
+// Shapes we send to the API — always plain strings
+export interface OfferProductRequest {
+  productId: string;
+  variantItemIds: string[];
+}
+
+export interface OfferItemRequest {
+  categoryId: string;
+  isFixed: boolean;
+  products: OfferProductRequest[];
 }
 
 export interface OfferItem {
@@ -17,7 +30,7 @@ export interface OfferItem {
   price: number;
   mainImage: string;
   gallery: string[];
-  offerItems: OfferItemPayload[];
+  offerItems: OfferItemResponse[];
   totalItems: number;
   availability: { website: boolean; pos: boolean; kiosk: boolean };
   availableFor: { homeDelivery: boolean; takeaway: boolean };
@@ -31,7 +44,7 @@ export interface CreateOfferPayload {
   title: string;
   description?: string;
   price: number;
-  offerItems: OfferItemPayload[];
+  offerItems: OfferItemRequest[];
   availability: { website: boolean; pos: boolean; kiosk: boolean };
   availableFor: { homeDelivery: boolean; takeaway: boolean };
   mainImage: File;
@@ -43,7 +56,7 @@ export interface UpdateOfferPayload {
   description?: string;
   price?: number;
   status?: "active" | "inactive";
-  offerItems?: OfferItemPayload[];
+  offerItems?: OfferItemRequest[];
   availability?: { website: boolean; pos: boolean; kiosk: boolean };
   availableFor?: { homeDelivery: boolean; takeaway: boolean };
   mainImage?: File;
