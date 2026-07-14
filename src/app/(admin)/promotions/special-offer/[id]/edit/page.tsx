@@ -76,6 +76,19 @@ function OfferProductsModal({
     return ids;
   });
 
+  const [productVariantOverrides, setProductVariantOverrides] = useState<Map<string, Set<string>>>(() => {
+    if (!existing) return new Map();
+    const globalIds = new Set<string>();
+    existing.products.forEach((p) => p.variantItemIds.forEach((id) => globalIds.add(id)));
+    const overrides = new Map<string, Set<string>>();
+    existing.products.forEach((p) => {
+      const deselected = new Set<string>();
+      globalIds.forEach((id) => { if (!p.variantItemIds.includes(id)) deselected.add(id); });
+      if (deselected.size > 0) overrides.set(p.productId, deselected);
+    });
+    return overrides;
+  });
+
   const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(
     new Set(existing?.products.map((p) => p.productId) ?? [])
   );
@@ -111,6 +124,16 @@ function OfferProductsModal({
     });
   };
 
+  const toggleProductVariant = (productId: string, variantId: string) => {
+    setProductVariantOverrides((prev) => {
+      const next = new Map(prev);
+      const current = new Set(next.get(productId) ?? []);
+      if (current.has(variantId)) current.delete(variantId); else current.add(variantId);
+      next.set(productId, current);
+      return next;
+    });
+  };
+
   const toggleProduct = (id: string) => {
     setSelectedProductIds((prev) => {
       const next = new Set(prev);
@@ -123,7 +146,10 @@ function OfferProductsModal({
     const productsList: OfferProductEntry[] = Array.from(selectedProductIds).map((productId) => {
       const product = products.find((p) => p._id === productId);
       const productVariantIds = (product?.variants ?? []).map((v) => getVariantId(v));
-      const appliedVariantIds = productVariantIds.filter((id) => selectedVariantIds.has(id));
+      const overrides = productVariantOverrides.get(productId) ?? new Set<string>();
+      const appliedVariantIds = productVariantIds.filter(
+        (id) => selectedVariantIds.has(id) && !overrides.has(id)
+      );
       return {
         productId,
         productName: product?.name ?? "",
@@ -166,6 +192,7 @@ function OfferProductsModal({
                       setCatName(cat.name);
                       setSelectedVariantIds(new Set());
                       setSelectedProductIds(new Set());
+                      setProductVariantOverrides(new Map());
                       setProductSearch("");
                       setStep("products");
                     }}
@@ -242,7 +269,7 @@ function OfferProductsModal({
                   </label>
                 </div>
 
-                <div className="flex items-center gap-2 bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-2.5 mt-3 mb-3 focus-within:border-white transition-colors">
+                <div className="flex items-center gap-2 border border-white/10 rounded-xl px-4 py-2.5 mt-3 mb-3 focus-within:border-white transition-colors">
                   <Search size={14} className="text-white/30 shrink-0" />
                   <input
                     value={productSearch}
@@ -274,6 +301,7 @@ function OfferProductsModal({
                         selectedVariantIds.size > 0
                           ? productVariants.filter((v) => selectedVariantIds.has(v.id))
                           : productVariants;
+                      const productOverrides = productVariantOverrides.get(product._id) ?? new Set<string>();
 
                       return (
                         <div
@@ -299,16 +327,23 @@ function OfferProductsModal({
                               <div className="mt-1.5">
                                 <p className="text-xs text-white/40 mb-1">Choose Variant</p>
                                 <div className="flex gap-1.5 flex-wrap">
-                                  {displayVariants.map((v) => (
-                                    <button
-                                      key={v.id}
-                                      type="button"
-                                      onClick={(e) => { e.stopPropagation(); toggleVariant(v.id); }}
-                                      className="px-2.5 py-1 rounded-lg border border-white/20 text-xs text-white/70 hover:border-red-400/50 hover:text-red-400 transition-colors"
-                                    >
-                                      {v.name} {v.price.toLocaleString()} kr.
-                                    </button>
-                                  ))}
+                                  {displayVariants.map((v) => {
+                                    const deselected = productOverrides.has(v.id);
+                                    return (
+                                      <button
+                                        key={v.id}
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); toggleProductVariant(product._id, v.id); }}
+                                        className={`px-2.5 py-1 rounded-lg border text-xs transition-colors ${
+                                          deselected
+                                            ? "border-white/8 text-white/25 line-through"
+                                            : "border-white/20 text-white/70 hover:border-red-400/40 hover:text-red-400/80"
+                                        }`}
+                                      >
+                                        {v.name} {v.price.toLocaleString()} kr.
+                                      </button>
+                                    );
+                                  })}
                                 </div>
                               </div>
                             )}
