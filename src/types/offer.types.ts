@@ -1,6 +1,6 @@
 export interface OfferProductEntry {
-  productId: string;
-  variantItemIds: string[];
+  productId: string | { _id: string; name: string };
+  variantItemIds: (string | { _id: string; name: string })[];
 }
 
 export interface OfferItemPayload {
