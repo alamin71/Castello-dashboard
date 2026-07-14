@@ -377,8 +377,12 @@ export default function OfferForm({ initialData, offerId }: { initialData?: Offe
 
   // Images
   const [mainImageFile, setMainImageFile] = useState<File | null>(null);
-  // mainImagePreview: blob URL (new file) or existing API URL (edit mode)
-  const [mainImagePreview, setMainImagePreview] = useState<string | null>(initialData?.mainImage || null);
+  // mainImageBlobUrl: preview for newly selected file only
+  const [mainImageBlobUrl, setMainImageBlobUrl] = useState<string | null>(null);
+  // derived: show new blob if picked, otherwise existing backend URL
+  const mainImagePreview = mainImageBlobUrl ?? initialData?.mainImage ?? null;
+  // valid if a new file is selected OR an existing URL exists from the API
+  const hasMainImage = !!(mainImageFile || initialData?.mainImage);
 
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [galleryFilePreviews, setGalleryFilePreviews] = useState<string[]>([]);
@@ -390,12 +394,13 @@ export default function OfferForm({ initialData, offerId }: { initialData?: Offe
 
   const handleMainImage = (file: File) => {
     setMainImageFile(file);
-    setMainImagePreview(URL.createObjectURL(file));
+    setMainImageBlobUrl(URL.createObjectURL(file));
   };
 
+  // Only called to undo a newly selected file — restores the existing API image
   const clearMainImage = () => {
     setMainImageFile(null);
-    setMainImagePreview(null);
+    setMainImageBlobUrl(null);
     if (mainImageRef.current) mainImageRef.current.value = "";
   };
 
@@ -420,7 +425,6 @@ export default function OfferForm({ initialData, offerId }: { initialData?: Offe
   };
 
   const totalGallery = existingGalleryUrls.length + galleryFiles.length;
-  const hasMainImage = !!mainImagePreview;
   const isValid = title.trim() && Number(price) > 0 && offerItems.length > 0 && (isEdit ? hasMainImage : !!mainImageFile);
 
   const handleModalSave = (item: OfferItemState) => {
@@ -581,13 +585,15 @@ export default function OfferForm({ initialData, offerId }: { initialData?: Offe
                 <div onClick={() => mainImageRef.current?.click()} className="relative w-full aspect-square cursor-pointer">
                   <Image src={mainImagePreview} alt="Main image" fill className="object-cover" unoptimized />
                 </div>
-                <button
-                  type="button"
-                  onClick={clearMainImage}
-                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-black/80 transition-colors z-10"
-                >
-                  <X size={13} />
-                </button>
+                {mainImageFile && (
+                  <button
+                    type="button"
+                    onClick={clearMainImage}
+                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-black/80 transition-colors z-10"
+                  >
+                    <X size={13} />
+                  </button>
+                )}
               </>
             ) : (
               <div onClick={() => mainImageRef.current?.click()} className="p-6 text-center cursor-pointer hover:border-white/20 transition-colors">
