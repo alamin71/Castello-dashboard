@@ -2,9 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { productService } from "@/services/product.service";
 import { ProductListParams } from "@/types/product.types";
 
-export function useProducts(params: ProductListParams = {}) {
+export function useProducts(params: ProductListParams = {}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["products", params],
     queryFn: () => productService.list(params),
+    enabled: options?.enabled !== false,
   });
 }

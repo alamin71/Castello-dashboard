@@ -63,10 +63,10 @@ const API = {
   },
 
   offers: {
-    list:   "/special-offers",
-    create: "/special-offers",
-    update: (id: string) => `/special-offers/${id}`,
-    delete: (id: string) => `/special-offers/${id}`,
+    list:   "/admin/promotions/offers",
+    create: "/admin/promotions/offers",
+    update: (id: string) => `/admin/promotions/offers/${id}`,
+    delete: (id: string) => `/admin/promotions/offers/${id}`,
   },
 
   policy: {
