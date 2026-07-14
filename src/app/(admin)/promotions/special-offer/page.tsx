@@ -23,6 +23,30 @@ function StatusBadge({ status }: { status: Status }) {
   );
 }
 
+function AvailabilityBadges({ availability }: { availability: { website: boolean; pos: boolean; kiosk: boolean } }) {
+  const items = [
+    { key: "website", label: "Web" },
+    { key: "pos",     label: "POS" },
+    { key: "kiosk",   label: "Kiosk" },
+  ] as const;
+  return (
+    <div className="flex gap-1 flex-wrap">
+      {items.map(({ key, label }) => (
+        <span
+          key={key}
+          className={`px-2 py-0.5 rounded-md text-xs font-medium border ${
+            availability[key]
+              ? "border-white/20 text-white/70 bg-white/5"
+              : "border-white/6 text-white/20"
+          }`}
+        >
+          {label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function OfferSkeletonRow() {
   return (
     <tr className="border-b border-white/4">
@@ -38,6 +62,7 @@ function OfferSkeletonRow() {
       <td className="px-5 py-4"><div className="skeleton h-4 w-8 rounded" /></td>
       <td className="px-5 py-4"><div className="skeleton h-4 w-16 rounded" /></td>
       <td className="px-5 py-4"><div className="skeleton h-6 w-20 rounded-full" /></td>
+      <td className="px-5 py-4"><div className="flex gap-1"><div className="skeleton h-5 w-10 rounded-md" /><div className="skeleton h-5 w-10 rounded-md" /><div className="skeleton h-5 w-12 rounded-md" /></div></td>
       <td className="px-5 py-4">
         <div className="flex items-center gap-1">
           <div className="skeleton w-7 h-7 rounded-lg" />
@@ -188,6 +213,7 @@ export default function SpecialOfferPage() {
                 <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Items</th>
                 <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Price (Kr.)</th>
                 <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Status</th>
+                <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Availability</th>
                 <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider rounded-tr-2xl">Action</th>
               </tr>
             </thead>
@@ -196,11 +222,11 @@ export default function SpecialOfferPage() {
                 Array.from({ length: 10 }).map((_, i) => <OfferSkeletonRow key={i} />)
               ) : isError ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-12 text-center text-sm text-red-400">Failed to load offers.</td>
+                  <td colSpan={9} className="px-5 py-12 text-center text-sm text-red-400">Failed to load offers.</td>
                 </tr>
               ) : offers.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-12 text-center text-sm text-white/40">No offers found.</td>
+                  <td colSpan={9} className="px-5 py-12 text-center text-sm text-white/40">No offers found.</td>
                 </tr>
               ) : (
                 offers.map((offer) => {
@@ -244,6 +270,7 @@ export default function SpecialOfferPage() {
                       </td>
                       <td className="px-5 py-4 text-sm text-white/70">{offer.price.toLocaleString()}</td>
                       <td className="px-5 py-4"><StatusBadge status={offer.status} /></td>
+                      <td className="px-5 py-4"><AvailabilityBadges availability={offer.availability} /></td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1">
                           <Link
