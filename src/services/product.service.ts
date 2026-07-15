@@ -56,9 +56,7 @@ export const productService = {
       });
     }
 
-    const res = await apiClient.post(API.products.create, form, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const res = await apiClient.post(API.products.create, form);
     return res.data.data;
   },
 
@@ -79,7 +77,7 @@ export const productService = {
     if (payload.mainImage) form.append("mainImage", payload.mainImage);
     if (payload.gallery) payload.gallery.forEach((f) => form.append("gallery", f));
     if (payload.removeGallery && payload.removeGallery.length > 0)
-      payload.removeGallery.forEach((url) => form.append("removeGallery", url));
+      payload.removeGallery.forEach((url) => form.append("removeGallery[]", url));
     if (payload.variants) {
       payload.variants.forEach((v, i) => {
         form.append(`variants[${i}][variantCategoryId]`, v.variantCategoryId);
@@ -88,9 +86,7 @@ export const productService = {
         form.append(`variants[${i}][status]`, v.status);
       });
     }
-    const res = await apiClient.patch(API.products.update(id), form, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const res = await apiClient.patch(API.products.update(id), form);
     return res.data.data;
   },
 
