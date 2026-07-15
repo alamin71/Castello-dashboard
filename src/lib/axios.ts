@@ -11,6 +11,11 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  // For FormData, remove the default JSON Content-Type so the browser
+  // can set the correct multipart/form-data boundary automatically
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
   return config;
 });
 
