@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import Image from "next/image";
 import {
   Plus, Search, ChevronDown, ChevronLeft, ChevronRight,
-  Pencil, Trash2, X, MoreHorizontal,
+  Pencil, Trash2, X, MoreVertical, Ban, CircleCheck, ArrowLeft,
 } from "lucide-react";
 import { useRef, useEffect } from "react";
 
@@ -72,10 +72,10 @@ function DateCell({ iso, withSeconds }: { iso: string; withSeconds?: boolean }) 
 
 function StatusBadge({ status }: { status: "active" | "inactive" }) {
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-      status === "active" ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs border ${
+      status === "active" ? "border-emerald-500 text-emerald-400" : "border-red-500 text-red-400"
     }`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${status === "active" ? "bg-green-400" : "bg-red-400"}`} />
+      <span className={`w-1.5 h-1.5 rounded-full ${status === "active" ? "bg-emerald-400" : "bg-red-400"}`} />
       {status === "active" ? "Active" : "Inactive"}
     </span>
   );
@@ -256,15 +256,15 @@ function SelectProductsModal({
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70">
       <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col border border-white/8">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-white/8 shrink-0">
-          <h2 className="text-lg font-semibold text-white">Select Products</h2>
+        <div className="flex items-center gap-3 px-6 pt-5 pb-4 border-b border-white/8 shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-colors"
+            className="p-1.5 rounded-lg text-white/50 hover:bg-white/8 hover:text-white transition-colors"
           >
-            <X size={16} />
+            <ArrowLeft size={18} />
           </button>
+          <h2 className="text-lg font-semibold text-white">Select Products</h2>
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
@@ -275,35 +275,41 @@ function SelectProductsModal({
               <button
                 type="button"
                 onClick={() => scrollCats("left")}
-                className="p-1.5 rounded-lg bg-white/6 text-white/50 hover:bg-white/10 hover:text-white transition-colors shrink-0"
+                className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/6 transition-colors shrink-0"
               >
-                <ChevronLeft size={14} />
+                <ChevronLeft size={16} />
               </button>
               <div ref={categoriesRef} className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide">
-                {categories.map((cat) => (
-                  <button
-                    key={cat._id}
-                    type="button"
-                    onClick={() => { setSelectedCategoryId(cat._id); setProductSearch(""); }}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 transition-colors ${
-                      selectedCategoryId === cat._id
-                        ? "bg-[#e85d26] text-white"
-                        : "bg-white/8 text-white/55 hover:bg-white/12"
-                    }`}
-                  >
-                    {cat.name}
-                    <span className={`text-xs ${selectedCategoryId === cat._id ? "text-white/70" : "text-white/35"}`}>
-                      {(cat as unknown as { totalProducts?: number }).totalProducts ?? 0}
-                    </span>
-                  </button>
-                ))}
+                {categories.map((cat) => {
+                  const isSel = selectedCategoryId === cat._id;
+                  const count = (cat as unknown as { totalProducts?: number }).totalProducts ?? 0;
+                  return (
+                    <button
+                      key={cat._id}
+                      type="button"
+                      onClick={() => { setSelectedCategoryId(cat._id); setProductSearch(""); }}
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium whitespace-nowrap shrink-0 transition-all ${
+                        isSel
+                          ? "border-[#e85d26] bg-[#e85d26]/8 text-white"
+                          : "border-white/10 bg-transparent text-white/50 hover:border-white/20 hover:text-white/70"
+                      }`}
+                    >
+                      <span>{cat.name}</span>
+                      <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-md ${
+                        isSel ? "bg-[#e85d26]/20 text-[#e85d26]" : "bg-white/8 text-white/35"
+                      }`}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
               <button
                 type="button"
                 onClick={() => scrollCats("right")}
-                className="p-1.5 rounded-lg bg-white/6 text-white/50 hover:bg-white/10 hover:text-white transition-colors shrink-0"
+                className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/6 transition-colors shrink-0"
               >
-                <ChevronRight size={14} />
+                <ChevronRight size={16} />
               </button>
             </div>
           </div>
@@ -1004,17 +1010,17 @@ export default function CouponsPage() {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => { setEditCoupon(coupon); setShowModal(true); }}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:bg-white/8 hover:text-white transition-colors"
+                          className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"
                           title="Edit coupon"
                         >
-                          <Pencil size={14} />
+                          <Pencil size={15} />
                         </button>
                         <button
                           onClick={(e) => openMenuAt(coupon._id, e)}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:bg-white/8 hover:text-white transition-colors"
+                          className="p-1.5 text-white/40 hover:text-white transition-colors rounded-lg hover:bg-white/5"
                           title="More options"
                         >
-                          <MoreHorizontal size={14} />
+                          <MoreVertical size={15} />
                         </button>
                       </div>
                     </td>
@@ -1042,7 +1048,7 @@ export default function CouponsPage() {
         <>
           <div className="fixed inset-0 z-[9998]" onClick={closeMenu} />
           <div
-            className="fixed z-[9999] bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl overflow-hidden w-44"
+            className="fixed z-[9999] bg-[#1e1e1e] border border-white/10 rounded-2xl shadow-2xl overflow-hidden w-44"
             style={{ top: menuPos.top, bottom: menuPos.bottom, right: menuPos.right }}
           >
             {(() => {
@@ -1052,18 +1058,21 @@ export default function CouponsPage() {
                 <>
                   <button
                     onClick={() => toggleStatus(coupon)}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white/70 hover:bg-white/6 hover:text-white transition-colors text-left"
+                    className={`flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors ${
+                      coupon.status === "active"
+                        ? "text-red-400 hover:bg-red-400/8"
+                        : "text-emerald-400 hover:bg-emerald-400/8"
+                    }`}
                   >
-                    <span className={`w-2 h-2 rounded-full shrink-0 ${coupon.status === "active" ? "bg-red-400" : "bg-green-400"}`} />
-                    Set {coupon.status === "active" ? "Inactive" : "Active"}
+                    {coupon.status === "active" ? <Ban size={16} /> : <CircleCheck size={16} />}
+                    {coupon.status === "active" ? "Inactive" : "Active"}
                   </button>
-                  <div className="h-px bg-white/6 mx-3" />
+                  <div className="mx-4 h-px bg-white/8" />
                   <button
                     onClick={() => { setDeleteCoupon(coupon); closeMenu(); }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-red-500/8 transition-colors text-left"
+                    className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-red-400 hover:bg-red-400/8 transition-colors"
                   >
-                    <Trash2 size={14} className="shrink-0" />
-                    Delete
+                    <Trash2 size={16} /> Delete
                   </button>
                 </>
               );
