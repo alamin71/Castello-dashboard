@@ -682,7 +682,7 @@ function CouponModal({ initialData, onClose }: { initialData?: CouponItem; onClo
                   type="number"
                   value={minimumOrder}
                   onChange={(e) => setMinimumOrder(e.target.value)}
-                  placeholder="e.g. 4900"
+                  placeholder="e.g. 5000"
                   min={0}
                   className="w-full bg-[#141414] border border-white/10 rounded-xl px-4 py-3 pr-12 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
