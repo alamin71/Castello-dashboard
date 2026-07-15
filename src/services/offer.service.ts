@@ -44,7 +44,7 @@ export const offerService = {
     if (payload.mainImage) form.append("mainImage", payload.mainImage);
     if (payload.gallery) payload.gallery.forEach((f) => form.append("gallery", f));
     if (payload.removeGallery && payload.removeGallery.length > 0)
-      payload.removeGallery.forEach((url) => form.append("removeGallery", url));
+      payload.removeGallery.forEach((url) => form.append("removeGallery[]", url));
     const res = await apiClient.patch(API.offers.update(id), form);
     return res.data.data;
   },
