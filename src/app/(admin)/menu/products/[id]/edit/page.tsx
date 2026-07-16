@@ -95,14 +95,14 @@ function ToppingItemsTab({
   selectedItems: Set<string>;
   onToggle: (id: string) => void;
 }) {
-  const { data: toppingItemsData, isLoading } = useToppingItems({ toppingCategoryId: category._id });
-  const items = toppingItemsData?.result ?? [];
+  const { data: toppingItemsData, isLoading } = useToppingItems({ toppingCategoryId: category._id, limit: 200 });
+  const items = (toppingItemsData?.result ?? []).slice().sort((a, b) => a.name.localeCompare(b.name));
   if (isLoading) return <p className="text-sm text-white/30 py-4 text-center">Loading…</p>;
   if (items.length === 0) return <p className="text-sm text-white/30 py-4 text-center">No items found.</p>;
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-2 gap-x-4 gap-y-3">
       {items.map((item: ToppingItem) => (
-        <label key={item._id} className="flex items-center gap-2 cursor-pointer">
+        <label key={item._id} className="flex items-center gap-2.5 cursor-pointer py-1">
           <input
             type="checkbox"
             checked={selectedItems.has(item._id)}
