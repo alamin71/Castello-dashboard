@@ -383,7 +383,7 @@ function SelectProductsModal({
               </label>
             </div>
 
-            <div className="flex items-center gap-2 border border-white/10 rounded-xl px-3.5 py-2.5 mt-3 mb-3 focus-within:border-white/25 transition-colors bg-[#141414]">
+            <div className="flex items-center gap-2 border border-white/10 rounded-xl px-3.5 py-2.5 mt-3 mb-3 focus-within:border-white transition-colors">
               <Search size={14} className="text-white/30 shrink-0" />
               <input
                 value={productSearch}
@@ -600,7 +600,7 @@ function CouponModal({ initialData, onClose }: { initialData?: CouponItem; onClo
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter coupon name"
-                className="w-full bg-[#141414] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors"
+                className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors"
               />
             </div>
             <div className="space-y-1.5">
@@ -611,7 +611,7 @@ function CouponModal({ initialData, onClose }: { initialData?: CouponItem; onClo
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                 placeholder="e.g. SAVE20"
-                className="w-full bg-[#141414] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors tracking-widest"
+                className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors tracking-widest"
               />
             </div>
           </div>
@@ -663,7 +663,7 @@ function CouponModal({ initialData, onClose }: { initialData?: CouponItem; onClo
                   onChange={(e) => setDiscountValue(e.target.value)}
                   placeholder="e.g. 20"
                   min={0}
-                  className="w-full bg-[#141414] border border-white/10 rounded-xl px-4 py-3 pr-12 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 pr-12 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/35 pointer-events-none">
                   {discountMethod === "percent" ? "%" : "kr."}
@@ -681,7 +681,7 @@ function CouponModal({ initialData, onClose }: { initialData?: CouponItem; onClo
                   onChange={(e) => setMinimumOrder(e.target.value)}
                   placeholder="e.g. 5000"
                   min={0}
-                  className="w-full bg-[#141414] border border-white/10 rounded-xl px-4 py-3 pr-12 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 pr-12 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/35 pointer-events-none">
                   kr.
@@ -700,7 +700,7 @@ function CouponModal({ initialData, onClose }: { initialData?: CouponItem; onClo
                 type="datetime-local"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full bg-[#141414] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-colors [color-scheme:dark]"
+                className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white transition-colors [color-scheme:dark]"
               />
             </div>
             <div className="space-y-1.5">
@@ -711,7 +711,7 @@ function CouponModal({ initialData, onClose }: { initialData?: CouponItem; onClo
                 type="datetime-local"
                 value={expireDate}
                 onChange={(e) => setExpireDate(e.target.value)}
-                className="w-full bg-[#141414] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30 transition-colors [color-scheme:dark]"
+                className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white transition-colors [color-scheme:dark]"
               />
             </div>
           </div>
@@ -735,7 +735,7 @@ function CouponModal({ initialData, onClose }: { initialData?: CouponItem; onClo
               <button
                 type="button"
                 onClick={() => setShowProductModal(true)}
-                className="flex items-center justify-between w-full bg-[#141414] border border-white/10 rounded-xl px-4 py-3.5 hover:border-white/22 transition-colors"
+                className="flex items-center justify-between w-full bg-transparent border border-white/10 rounded-xl px-4 py-3.5 hover:border-white/22 transition-colors"
               >
                 <span className="text-sm text-white/60">
                   {selectedProducts.length > 0
@@ -920,7 +920,7 @@ export default function CouponsPage() {
 
       {/* Filters */}
       <div className="shrink-0 flex items-center justify-between mb-4 gap-3">
-        <div className="flex items-center gap-2.5 bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 flex-1 max-w-xs focus-within:border-white/30 transition-colors">
+        <div className="flex items-center gap-2.5 bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 flex-1 max-w-xs focus-within:border-white transition-colors">
           <Search size={15} className="text-white/30 shrink-0" />
           <input
             value={search}
