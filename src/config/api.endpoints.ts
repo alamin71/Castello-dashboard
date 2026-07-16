@@ -77,6 +77,13 @@ const API = {
     delete: (id: string) => `/admin/promotions/coupons/${id}`,
   },
 
+  discounts: {
+    list:   "/admin/promotions/discounts",
+    create: "/admin/promotions/discounts",
+    update: (id: string) => `/admin/promotions/discounts/${id}`,
+    delete: (id: string) => `/admin/promotions/discounts/${id}`,
+  },
+
   policy: {
     get:    (slug: string) => `/admin/policy/${slug}`,
     create: (slug: string) => `/admin/policy/${slug}`,

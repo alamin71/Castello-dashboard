@@ -216,19 +216,16 @@ function SelectProductsModal({
 
   const toggleProduct = (product: ProductItem) => {
     const id = product._id;
-    setSelectedProductIds((prev) => {
-      const n = new Set(prev);
-      if (n.has(id)) {
-        n.delete(id);
-      } else {
-        n.add(id);
-        if (!productVariantSel.has(id)) {
-          const varIds = product.variants.map((v) => getVariantId(v));
-          setProductVariantSel((pm) => new Map(pm).set(id, new Set(varIds)));
-        }
+    if (selectedProductIds.has(id)) {
+      setSelectedProductIds((prev) => { const n = new Set(prev); n.delete(id); return n; });
+    } else {
+      setSelectedProductIds((prev) => { const n = new Set(prev); n.add(id); return n; });
+      if (!productVariantSel.has(id)) {
+        setProductVariantSel((pm) =>
+          new Map(pm).set(id, new Set(product.variants.map((v) => getVariantId(v))))
+        );
       }
-      return n;
-    });
+    }
   };
 
   const toggleProductVariant = (productId: string, variantId: string) => {
@@ -370,14 +367,14 @@ function SelectProductsModal({
                     if (allProductsSelected) {
                       setSelectedProductIds(new Set());
                     } else {
+                      setSelectedProductIds((prev) => new Set([...prev, ...filteredProducts.map((p) => p._id)]));
+                      const newVariantSel = new Map(productVariantSel);
                       filteredProducts.forEach((p) => {
-                        setSelectedProductIds((prev) => new Set([...prev, p._id]));
-                        if (!productVariantSel.has(p._id)) {
-                          setProductVariantSel((pm) =>
-                            new Map(pm).set(p._id, new Set(p.variants.map((v) => getVariantId(v))))
-                          );
+                        if (!newVariantSel.has(p._id)) {
+                          newVariantSel.set(p._id, new Set(p.variants.map((v) => getVariantId(v))));
                         }
                       });
+                      setProductVariantSel(newVariantSel);
                     }
                   }}
                   className="w-4 h-4 rounded accent-[#e85d26]"
