@@ -151,16 +151,16 @@ function ItemModal({ existing, categories, onClose }: { existing?: ToppingItem; 
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-white"><span className="text-red-400">*</span> Price</label>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                onChange={(e) => setPrice(e.target.value.replace(/\D/g, ""))}
                 onKeyDown={(e) => {
                   const allowed = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Home", "End"];
                   if (!/^\d$/.test(e.key) && !allowed.includes(e.key)) e.preventDefault();
                 }}
                 placeholder="Enter price"
-                min={0}
-                className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors"
               />
             </div>
           </div>
