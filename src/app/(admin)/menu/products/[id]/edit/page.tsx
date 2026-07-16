@@ -584,9 +584,14 @@ export default function EditProductPage() {
                   <span className="text-red-400">*</span> Price (Kr.)
                 </label>
                 <input
-                  type="text" inputMode="numeric"
+                  type="text"
+                  inputMode="numeric"
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  onChange={(e) => setPrice(e.target.value.replace(/\D/g, ""))}
+                  onKeyDown={(e) => {
+                    const allowed = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Home", "End"];
+                    if (!/^\d$/.test(e.key) && !allowed.includes(e.key)) e.preventDefault();
+                  }}
                   placeholder="Enter product price"
                   className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors"
                 />
@@ -623,10 +628,15 @@ export default function EditProductPage() {
                       />
 
                       <input
-                        type="text" inputMode="numeric"
+                        type="text"
+                        inputMode="numeric"
                         placeholder="Price"
                         value={v.price}
-                        onChange={(e) => updateVariant(idx, "price", e.target.value)}
+                        onChange={(e) => updateVariant(idx, "price", e.target.value.replace(/\D/g, ""))}
+                        onKeyDown={(e) => {
+                          const allowed = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Home", "End"];
+                          if (!/^\d$/.test(e.key) && !allowed.includes(e.key)) e.preventDefault();
+                        }}
                         className="flex-1 bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white"
                       />
 
