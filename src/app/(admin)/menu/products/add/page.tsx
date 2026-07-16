@@ -100,6 +100,7 @@ function ToppingItemsTab({
     return <p className="text-sm text-white/30 py-4 text-center">No items found.</p>;
 
   return (
+    <div className="overflow-y-auto max-h-[308px] pr-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
     <div className="grid grid-cols-2 gap-x-4 gap-y-3">
       {items.map((item: ToppingItem) => (
         <label key={item._id} className="flex items-center gap-2.5 cursor-pointer py-1">
@@ -112,6 +113,7 @@ function ToppingItemsTab({
           <span className="text-sm text-white">{item.name}</span>
         </label>
       ))}
+    </div>
     </div>
   );
 }
@@ -218,9 +220,6 @@ function ToppingsModal({
             <p className="text-sm font-medium text-white mb-0.5">Default Topping Items</p>
             <p className="text-xs text-white/40 mb-4">Select default pre-selected items for each topping category.</p>
             <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1">
-              <button type="button" className="p-1 text-white/40 hover:text-white shrink-0">
-                <ChevronLeft size={14} />
-              </button>
               {selectedCats.map((cat) => (
                 <button
                   key={cat._id}
@@ -235,9 +234,6 @@ function ToppingsModal({
                   {cat.name}
                 </button>
               ))}
-              <button type="button" className="p-1 text-white/40 hover:text-white shrink-0">
-                <ChevronRight size={14} />
-              </button>
             </div>
             {activeTabId && (
               <ToppingItemsTab
