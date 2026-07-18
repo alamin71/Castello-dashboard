@@ -65,13 +65,18 @@ function CategoryModal({
     if (!name.trim()) return setError("Category name is required.");
     if (!isEdit && !imageFile) return setError("Category photo is required.");
 
+    const handleApiError = (err: unknown) => {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(msg || (isEdit ? "Failed to update category" : "Failed to create category"));
+    };
+
     if (isEdit) {
       update(
         { id: initial!._id, payload: { name: name.trim(), ...(imageFile ? { image: imageFile } : {}), status } },
-        { onSuccess: onClose }
+        { onSuccess: onClose, onError: handleApiError }
       );
     } else {
-      create({ name: name.trim(), image: imageFile! }, { onSuccess: onClose });
+      create({ name: name.trim(), image: imageFile! }, { onSuccess: onClose, onError: handleApiError });
     }
   };
 
@@ -326,7 +331,7 @@ export default function OfferCategoriesPage() {
                         {openMenu === cat._id && menuPosition && (
                           <div
                             style={{ top: menuPosition.top, bottom: menuPosition.bottom, right: menuPosition.right }}
-                            className="fixed z-[9999] bg-[#1e1e1e] border border-white/10 rounded-2xl shadow-2xl w-44 overflow-hidden"
+                            className="fixed z-9999 bg-[#1e1e1e] border border-white/10 rounded-2xl shadow-2xl w-44 overflow-hidden"
                           >
                             <button
                               onClick={() => toggleStatus(cat)}
@@ -401,7 +406,7 @@ export default function OfferCategoriesPage() {
       )}
       {deleteCategory && <DeleteModal category={deleteCategory} onClose={() => setDeleteCategory(null)} />}
       {openMenu !== null && (
-        <div className="fixed inset-0 z-[9998]" onClick={() => { setOpenMenu(null); setMenuPosition(null); }} />
+        <div className="fixed inset-0 z-9998" onClick={() => { setOpenMenu(null); setMenuPosition(null); }} />
       )}
     </div>
   );
