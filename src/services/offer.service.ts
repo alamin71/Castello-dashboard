@@ -23,6 +23,7 @@ export const offerService = {
     form.append("title", payload.title);
     if (payload.description) form.append("description", payload.description);
     form.append("price", String(payload.price));
+    if (payload.offerCategoryId) form.append("offerCategoryId", payload.offerCategoryId);
     form.append("offerItems", JSON.stringify(payload.offerItems));
     form.append("availability", JSON.stringify(payload.availability));
     form.append("availableFor", JSON.stringify(payload.availableFor));
@@ -38,6 +39,7 @@ export const offerService = {
     if (payload.description !== undefined) form.append("description", payload.description);
     if (payload.price !== undefined) form.append("price", String(payload.price));
     if (payload.status) form.append("status", payload.status);
+    if (payload.offerCategoryId) form.append("offerCategoryId", payload.offerCategoryId);
     if (payload.offerItems) form.append("offerItems", JSON.stringify(payload.offerItems));
     if (payload.availability) form.append("availability", JSON.stringify(payload.availability));
     if (payload.availableFor) form.append("availableFor", JSON.stringify(payload.availableFor));

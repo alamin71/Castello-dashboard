@@ -40,6 +40,7 @@ const navItems = [
     icon: Tag,
     children: [
       { label: "Special Offers", href: "/promotions/special-offer" },
+      { label: "Offer Categories", href: "/promotions/offer-categories" },
       { label: "Coupons", href: "/promotions/coupons" },
       { label: "Discounts", href: "/promotions/discounts" },
     ],

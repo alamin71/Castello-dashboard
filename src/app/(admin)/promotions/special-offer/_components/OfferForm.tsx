@@ -3,8 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { CloudUpload, Plus, X, ChevronLeft, ChevronRight, Search, Trash2 } from "lucide-react";
+import { CloudUpload, Plus, X, ChevronLeft, ChevronRight, ChevronDown, Search, Trash2 } from "lucide-react";
 import { useCategories } from "@/hooks/queries/useCategories";
+import { useOfferCategories } from "@/hooks/queries/useOfferCategories";
 import { useProducts } from "@/hooks/queries/useProducts";
 import { useCreateOffer } from "@/hooks/mutations/useCreateOffer";
 import { useUpdateOffer } from "@/hooks/mutations/useUpdateOffer";
@@ -332,11 +333,18 @@ export default function OfferForm({ initialData, offerId }: { initialData?: Offe
   const isPending = isCreating || isUpdating;
 
   const { data: catData } = useCategories({});
+  const { data: offerCatData } = useOfferCategories({ limit: 100 });
 
   // Form fields — pre-filled from initialData
   const [title, setTitle] = useState(initialData?.title ?? "");
   const [description, setDescription] = useState(initialData?.description ?? "");
   const [price, setPrice] = useState(initialData ? String(initialData.price) : "");
+  const [offerCategoryId, setOfferCategoryId] = useState(() => {
+    const val = initialData?.offerCategoryId;
+    if (!val) return "";
+    if (typeof val === "object") return val._id;
+    return val;
+  });
 
   // Offer items — extract IDs from possibly-populated API fields
   const [offerItems, setOfferItems] = useState<OfferItemState[]>(() => {
@@ -449,6 +457,7 @@ export default function OfferForm({ initialData, offerId }: { initialData?: Offe
       title: title.trim(),
       description: description.trim() || undefined,
       price: Number(price),
+      ...(offerCategoryId ? { offerCategoryId } : {}),
       offerItems: buildOfferItemsPayload(),
       availability: { website: websiteAvail, pos: posAvail, kiosk: kioskAvail },
       availableFor: { homeDelivery, takeaway },
@@ -497,13 +506,35 @@ export default function OfferForm({ initialData, offerId }: { initialData?: Offe
           />
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium text-white"><span className="text-red-400">*</span> Price (Kr.)</label>
-          <input
-            type="number" value={price} onChange={(e) => setPrice(e.target.value)}
-            placeholder="Enter offer price" min={0}
-            className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-white"><span className="text-red-400">*</span> Offer Category</label>
+            <div className="relative">
+              <select
+                value={offerCategoryId}
+                onChange={(e) => setOfferCategoryId(e.target.value)}
+                className="w-full appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 pr-10 text-sm text-white outline-none focus:border-white transition-colors scheme-dark cursor-pointer"
+              >
+                <option value="">Select a category</option>
+                {(offerCatData?.result ?? []).map((c) => (
+                  <option key={c._id} value={c._id}>{c.name}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-white"><span className="text-red-400">*</span> Price (Kr.)</label>
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="Enter offer price"
+              min={0}
+              className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+          </div>
         </div>
 
         {/* Offer Items */}

@@ -8,6 +8,7 @@ import { useOffers } from "@/hooks/queries/useOffers";
 import { useUpdateOffer } from "@/hooks/mutations/useUpdateOffer";
 import { useDeleteOffer } from "@/hooks/mutations/useDeleteOffer";
 import { useCategories } from "@/hooks/queries/useCategories";
+import { useOfferCategories } from "@/hooks/queries/useOfferCategories";
 import { OfferItem } from "@/types/offer.types";
 
 type Status = "active" | "inactive";
@@ -58,11 +59,11 @@ function OfferSkeletonRow() {
           <div className="skeleton h-3 w-56 rounded" />
         </div>
       </td>
+      <td className="px-5 py-4"><div className="skeleton h-4 w-24 rounded" /></td>
       <td className="px-5 py-4"><div className="skeleton h-4 w-32 rounded" /></td>
       <td className="px-5 py-4"><div className="skeleton h-4 w-8 rounded" /></td>
       <td className="px-5 py-4"><div className="skeleton h-4 w-16 rounded" /></td>
       <td className="px-5 py-4"><div className="skeleton h-6 w-20 rounded-full" /></td>
-      <td className="px-5 py-4"><div className="flex gap-1"><div className="skeleton h-5 w-10 rounded-md" /><div className="skeleton h-5 w-10 rounded-md" /><div className="skeleton h-5 w-12 rounded-md" /></div></td>
       <td className="px-5 py-4">
         <div className="flex items-center gap-1">
           <div className="skeleton w-7 h-7 rounded-lg" />
@@ -97,7 +98,8 @@ function DeleteConfirmModal({ offer, onClose }: { offer: OfferItem; onClose: () 
 export default function SpecialOfferPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | Status>("all");
-  const [availabilityFilter, setAvailabilityFilter] = useState<"all" | "website" | "pos" | "kiosk">("all");
+  const [offerCategoryFilter, setOfferCategoryFilter] = useState("all");
+  const [productCategoryFilter, setProductCategoryFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -109,23 +111,33 @@ export default function SpecialOfferPage() {
     limit,
     ...(search ? { searchTerm: search } : {}),
     ...(statusFilter !== "all" ? { status: statusFilter } : {}),
-    ...(availabilityFilter !== "all" ? { availability: availabilityFilter } : {}),
+    ...(offerCategoryFilter !== "all" ? { offerCategoryId: offerCategoryFilter } : {}),
+    ...(productCategoryFilter !== "all" ? { productCategoryId: productCategoryFilter } : {}),
   };
 
   const { data, isLoading, isError } = useOffers(params);
   const { data: catData } = useCategories({});
+  const { data: offerCatData } = useOfferCategories({ limit: 100 });
   const { mutate: updateOffer } = useUpdateOffer();
 
   const offers = data?.result ?? [];
   const meta = data?.meta;
   const totalPages = meta?.totalPage ?? 1;
 
-  const catMap = new Map((catData?.result ?? []).map((c) => [c._id, c.name]));
+  const productCatMap = new Map((catData?.result ?? []).map((c) => [c._id, c.name]));
+  const offerCatMap = new Map((offerCatData?.result ?? []).map((c) => [c._id, c.name]));
 
-  const getOfferCategoryName = (catId: string | { _id: string; name: string }): string | undefined => {
+  const getProductCategoryName = (catId: string | { _id: string; name: string }): string | undefined => {
     if (typeof catId === "object" && catId.name) return catId.name;
     const id = typeof catId === "string" ? catId : catId._id;
-    return catMap.get(id);
+    return productCatMap.get(id);
+  };
+
+  const getOfferCategoryName = (val: string | { _id: string; name: string } | undefined): string | undefined => {
+    if (!val) return undefined;
+    if (typeof val === "object" && val.name) return val.name;
+    const id = typeof val === "string" ? val : val._id;
+    return offerCatMap.get(id);
   };
 
   const toggleStatus = (offer: OfferItem) => {
@@ -174,14 +186,27 @@ export default function SpecialOfferPage() {
         <div className="flex items-center gap-2">
           <div className="relative">
             <select
-              value={availabilityFilter}
-              onChange={(e) => { setAvailabilityFilter(e.target.value as "all" | "website" | "pos" | "kiosk"); setPage(1); }}
+              value={offerCategoryFilter}
+              onChange={(e) => { setOfferCategoryFilter(e.target.value); setPage(1); }}
               className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white scheme-dark"
             >
-              <option value="all">All Availability</option>
-              <option value="website">Website</option>
-              <option value="pos">POS</option>
-              <option value="kiosk">Kiosk</option>
+              <option value="all">Offer Category</option>
+              {(offerCatData?.result ?? []).map((c) => (
+                <option key={c._id} value={c._id}>{c.name}</option>
+              ))}
+            </select>
+            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+          </div>
+          <div className="relative">
+            <select
+              value={productCategoryFilter}
+              onChange={(e) => { setProductCategoryFilter(e.target.value); setPage(1); }}
+              className="appearance-none bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-2.5 pr-8 text-sm text-white outline-none cursor-pointer focus:border-white scheme-dark"
+            >
+              <option value="all">Product Category</option>
+              {(catData?.result ?? []).map((c) => (
+                <option key={c._id} value={c._id}>{c.name}</option>
+              ))}
             </select>
             <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
           </div>
@@ -209,11 +234,11 @@ export default function SpecialOfferPage() {
                 <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider rounded-tl-2xl">Offer ID</th>
                 <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Photo</th>
                 <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Offer Name</th>
-                <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Categories</th>
+                <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Offer Category</th>
+                <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Product Category</th>
                 <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Items</th>
                 <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Price (Kr.)</th>
                 <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Status</th>
-                <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider">Availability</th>
                 <th className="text-left px-5 py-4 text-xs font-medium text-white/40 uppercase tracking-wider rounded-tr-2xl">Action</th>
               </tr>
             </thead>
@@ -222,7 +247,7 @@ export default function SpecialOfferPage() {
                 Array.from({ length: 10 }).map((_, i) => <OfferSkeletonRow key={i} />)
               ) : isError ? (
                 <tr>
-                  <td colSpan={9} className="px-5 py-12 text-center text-sm text-red-400">Failed to load offers.</td>
+                  <td colSpan={9} className="px-5 py-12 text-center text-sm text-red-400">Failed to load offers. Please try again.</td>
                 </tr>
               ) : offers.length === 0 ? (
                 <tr>
@@ -230,9 +255,10 @@ export default function SpecialOfferPage() {
                 </tr>
               ) : (
                 offers.map((offer) => {
-                  const categoryNames = offer.offerItems
-                    .map((item) => getOfferCategoryName(item.categoryId))
+                  const productCategoryNames = offer.offerItems
+                    .map((item) => getProductCategoryName(item.categoryId))
                     .filter(Boolean) as string[];
+                  const offerCatName = getOfferCategoryName(offer.offerCategoryId);
 
                   return (
                     <tr key={offer._id} className="border-b border-white/4 hover:bg-white/2 transition-colors">
@@ -255,8 +281,17 @@ export default function SpecialOfferPage() {
                         )}
                       </td>
                       <td className="px-5 py-4">
+                        {offerCatName ? (
+                          <span className="px-2 py-0.5 bg-white/6 border border-white/10 rounded-lg text-xs text-white/60">
+                            {offerCatName}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-white/30">—</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-4">
                         <div className="flex flex-wrap gap-1">
-                          {categoryNames.length > 0 ? categoryNames.map((name) => (
+                          {productCategoryNames.length > 0 ? productCategoryNames.map((name) => (
                             <span key={name} className="px-2 py-0.5 bg-white/6 border border-white/10 rounded-lg text-xs text-white/60">
                               {name}
                             </span>
@@ -270,7 +305,6 @@ export default function SpecialOfferPage() {
                       </td>
                       <td className="px-5 py-4 text-sm text-white/70">{offer.price.toLocaleString()}</td>
                       <td className="px-5 py-4"><StatusBadge status={offer.status} /></td>
-                      <td className="px-5 py-4"><AvailabilityBadges availability={offer.availability} /></td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1">
                           <Link

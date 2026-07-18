@@ -30,6 +30,7 @@ export interface OfferItem {
   price: number;
   mainImage: string;
   gallery: string[];
+  offerCategoryId?: string | { _id: string; name: string };
   offerItems: OfferItemResponse[];
   totalItems: number;
   availability: { website: boolean; pos: boolean; kiosk: boolean };
@@ -44,6 +45,7 @@ export interface CreateOfferPayload {
   title: string;
   description?: string;
   price: number;
+  offerCategoryId?: string;
   offerItems: OfferItemRequest[];
   availability: { website: boolean; pos: boolean; kiosk: boolean };
   availableFor: { homeDelivery: boolean; takeaway: boolean };
@@ -56,6 +58,7 @@ export interface UpdateOfferPayload {
   description?: string;
   price?: number;
   status?: "active" | "inactive";
+  offerCategoryId?: string;
   offerItems?: OfferItemRequest[];
   availability?: { website: boolean; pos: boolean; kiosk: boolean };
   availableFor?: { homeDelivery: boolean; takeaway: boolean };
@@ -70,6 +73,8 @@ export interface OfferListParams {
   searchTerm?: string;
   status?: "active" | "inactive";
   availability?: "website" | "pos" | "kiosk";
+  offerCategoryId?: string;
+  productCategoryId?: string;
 }
 
 export interface OfferListMeta {

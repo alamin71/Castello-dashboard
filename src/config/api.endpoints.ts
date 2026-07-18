@@ -62,6 +62,14 @@ const API = {
     delete: (id: string) => `/admin/menu/products/${id}`,
   },
 
+  offerCategories: {
+    list:    "/admin/promotions/offer-categories",
+    create:  "/admin/promotions/offer-categories",
+    update:  (id: string) => `/admin/promotions/offer-categories/${id}`,
+    delete:  (id: string) => `/admin/promotions/offer-categories/${id}`,
+    reorder: "/admin/promotions/offer-categories/reorder",
+  },
+
   offers: {
     list:   "/admin/promotions/offers",
     create: "/admin/promotions/offers",
