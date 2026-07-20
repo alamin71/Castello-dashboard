@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { Plus, Search, Pencil, MoreVertical, ChevronDown, Trash2, Ban, CircleCheck, CloudUpload, X } from "lucide-react";
+import { Plus, Search, Pencil, MoreVertical, ChevronDown, Trash2, Ban, CircleCheck, CloudUpload, X, GripVertical } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useOfferCategories } from "@/hooks/queries/useOfferCategories";
 import { useCreateOfferCategory } from "@/hooks/mutations/useCreateOfferCategory";
 import { useUpdateOfferCategory } from "@/hooks/mutations/useUpdateOfferCategory";
 import { useDeleteOfferCategory } from "@/hooks/mutations/useDeleteOfferCategory";
+import { useReorderOfferCategories } from "@/hooks/mutations/useReorderOfferCategories";
 import { OfferCategoryItem } from "@/types/offer-category.types";
 
 type Status = "active" | "inactive";
@@ -202,6 +204,14 @@ export default function OfferCategoriesPage() {
   const [editCategory, setEditCategory] = useState<OfferCategoryItem | null>(null);
   const [deleteCategory, setDeleteCategory] = useState<OfferCategoryItem | null>(null);
 
+  // drag-and-drop reorder state
+  const [localOrder, setLocalOrder] = useState<OfferCategoryItem[] | null>(null);
+  const dragIndexRef = useRef<number | null>(null);
+  const pendingReorderRef = useRef(false);
+
+  const queryClient = useQueryClient();
+  const { mutate: reorderCategories } = useReorderOfferCategories();
+
   const params = {
     page,
     limit,
@@ -212,7 +222,14 @@ export default function OfferCategoriesPage() {
   const { data, isLoading, isError } = useOfferCategories(params);
   const { mutate: updateCategory } = useUpdateOfferCategory();
 
-  const categories = data?.result ?? [];
+  useEffect(() => {
+    if (pendingReorderRef.current && data) {
+      setLocalOrder(null);
+      pendingReorderRef.current = false;
+    }
+  }, [data]);
+
+  const categories = localOrder ?? data?.result ?? [];
   const meta = data?.meta;
   const totalPages = meta?.totalPage ?? 1;
 
@@ -220,6 +237,32 @@ export default function OfferCategoriesPage() {
     const newStatus: Status = cat.status === "active" ? "inactive" : "active";
     updateCategory({ id: cat._id, payload: { status: newStatus } });
     setOpenMenu(null);
+  };
+
+  const handleDragStart = (idx: number) => { dragIndexRef.current = idx; };
+
+  const handleDragOver = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    const from = dragIndexRef.current;
+    if (from === null || from === idx) return;
+    const reordered = [...categories];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(idx, 0, moved);
+    dragIndexRef.current = idx;
+    setLocalOrder(reordered);
+  };
+
+  const handleDrop = () => {
+    dragIndexRef.current = null;
+    if (!localOrder) return;
+    const orderedIds = localOrder.map((c) => c._id);
+    reorderCategories(orderedIds, {
+      onSuccess: () => {
+        pendingReorderRef.current = true;
+        queryClient.invalidateQueries({ queryKey: ["offer-categories"] });
+      },
+      onError: () => setLocalOrder(null),
+    });
   };
 
   const openMenuAt = (id: string, e: React.MouseEvent<HTMLButtonElement>) => {
@@ -297,7 +340,14 @@ export default function OfferCategoriesPage() {
                 <tr><td colSpan={7} className="px-5 py-12 text-center text-sm text-white/40">No offer categories found.</td></tr>
               ) : (
                 categories.map((cat, idx) => (
-                  <tr key={cat._id} className="border-b border-white/4 hover:bg-white/2 transition-colors">
+                  <tr
+                    key={cat._id}
+                    draggable
+                    onDragStart={() => handleDragStart(idx)}
+                    onDragOver={(e) => handleDragOver(e, idx)}
+                    onDrop={handleDrop}
+                    className="border-b border-white/4 hover:bg-white/2 transition-colors cursor-grab active:cursor-grabbing"
+                  >
                     <td className="px-5 py-4 text-sm text-white/60">{String((page - 1) * limit + idx + 1).padStart(2, "0")}</td>
                     <td className="px-5 py-4 text-sm text-white/60">{cat.offerCategoryId}</td>
                     <td className="px-5 py-4">
@@ -351,6 +401,13 @@ export default function OfferCategoriesPage() {
                             </button>
                           </div>
                         )}
+                        <button
+                          title="Drag to reorder"
+                          className="p-1.5 text-white/30 cursor-grab active:cursor-grabbing rounded-lg hover:bg-white/5"
+                          onMouseDown={(e) => e.stopPropagation()}
+                        >
+                          <GripVertical size={15} />
+                        </button>
                       </div>
                     </td>
                   </tr>
